@@ -6,7 +6,7 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    tf_list = [lambda x: x**3 - x**2,lambda x:x**2,lambda x: np.sin(1/x)] # if using 2 you get an error because of the devision through zero. but it still works
+    tf_list = [lambda x: x**3 - x**2,lambda x:x**2,lambda x: np.sin(1/x)]
     tf = tf_list[0] # choose the target function here
 
     x,t = create_dataset(size = 100, target_function = tf, plot = True,equal_spaced = False)

@@ -12,11 +12,11 @@ def create_dataset(size : int = 100,target_function = lambda x: x**3 - x**2,plot
         plot (boolean) = if you want to plot the data after creating it
         equal_spaced (boolean) = Set to True if you want equally spaced data point, otherwise you get uniformly distributed ones
     """
-    
+    start = 0.0000001 # to prevent 0 division
     if (equal_spaced):
-        x = np.linspace(0,1,size) # equally spaced values
+        x = np.linspace(start ,1,size) # equally spaced values
     else:
-        x = np.random.uniform(0,1,(size)) # random values
+        x = np.random.uniform(start,1,(size)) # random values
 
     t = target_function(x)
 
