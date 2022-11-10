@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # create the model with one hidden layer (length of list), having 10 units (value of element)
     mlp = MLP(hidden_layers = [10,],input_units = 1,output_units = 1)
 
-    epochs_number = 400
+    epochs_number = 1000
     average_loss = training(mlp,x,t,epochs = epochs_number,visualize = True,target_function = tf) # target function only needed for visualization (predictions of the model)
     
     visualize_results(average_loss,epochs = epochs_number)
