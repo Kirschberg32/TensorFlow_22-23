@@ -50,16 +50,9 @@ in between 0 and 1 worse than 0
 
 3. learning rate
 Most of the training is done in the first epoch, the rest is just finetuning
-If we make the learning rate smaller, it takes a little longer
+If we make the learning rate smaller, it takes a little longer until it converges
 
 4. batch size
-decreasing batch size: 
-does not improve the learning but increases the time needed
-
-for batch size = 10
-Time needed for training:  576.3972113132477  sec
-Training loss:  0.1370969
-Training accuracy:  0.9645333333333342
-Test loss:  0.17432739
-Test accuarcy:  0.9580999999999997
-
+decreasing batch size: increases the time needed and decreased performance (tried 16)
+Area between 32 and 64 seems optimal
+increasing further: decreases the time needed even more but also slowly decreasing (tried 128,256)
