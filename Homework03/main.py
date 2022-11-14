@@ -17,7 +17,7 @@ import time
 
 # Hyperparameters
 EPOCHS = 10
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.02
 MOMENTUM = 0
 
 loss_function = tf.keras.losses.CategoricalCrossentropy()

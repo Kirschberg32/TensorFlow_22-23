@@ -51,6 +51,7 @@ in between 0 and 1 worse than 0
 3. learning rate
 Most of the training is done in the first epoch, the rest is just finetuning
 If we make the learning rate smaller, it takes a little longer until it converges
+Less overfitting using 0.02 instead of 0.1. It is still converging quickly
 
 4. batch size
 decreasing batch size: increases the time needed and decreased performance (tried 16)
