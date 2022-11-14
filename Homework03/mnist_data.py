@@ -35,6 +35,6 @@ def mnist_preprocess(mnist):
     # cache shuffle, batch, prefetch
     mnist = mnist.cache()
     mnist = mnist.shuffle(1000)
-    mnist = mnist.batch(10)
+    mnist = mnist.batch(32)
     mnist = mnist.prefetch(20)
     return mnist

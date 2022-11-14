@@ -19,13 +19,12 @@ import time
 EPOCHS = 10
 LEARNING_RATE = 0.1
 MOMENTUM = 0
-BATCH_SIZE = 32
 
 loss_function = tf.keras.losses.CategoricalCrossentropy()
 optimizer = tf.keras.optimizers.SGD(learning_rate = LEARNING_RATE,momentum=MOMENTUM)
 
 # Loading and preprocessing the data
-( train_ds , test_ds ), _ = mnist_data.load_mnst(info = True)
+( train_ds , test_ds ), _ = mnist_data.load_mnst(info = False)
 
 train_processed = train_ds.apply(mnist_data.mnist_preprocess)
 test_processed = test_ds.apply(mnist_data.mnist_preprocess)
