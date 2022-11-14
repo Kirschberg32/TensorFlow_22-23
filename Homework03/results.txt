@@ -1,0 +1,64 @@
+1. Deviation 
+
+[256,256,],10
+Training loss:  0.02440399
+Training accuracy:  0.9919333333333333
+Test loss:  0.07440772
+Test accuarcy:  0.9803314696485623
+
+[128,],10
+Training loss:  0.07765455
+Training accuracy:  0.9753
+Test loss:  0.09981109
+Test accuarcy:  0.970547124600639
+
+[64,],10
+Training loss:  0.13534482
+Training accuracy:  0.9595166666666667
+Test loss:  0.13793625
+Test accuarcy:  0.9590654952076677
+
+[128,16],10
+Training loss:  0.059718695
+Training accuracy:  0.9809166666666667
+Test loss:  0.107176684
+Test accuarcy:  0.9698482428115016
+
+[64,64],10
+Training loss:  0.08431962
+Training accuracy:  0.9731166666666666
+Test loss:  0.11820367
+Test accuarcy:  0.9679512779552716
+
+[16,128]
+Training loss:  0.23447359
+Training accuracy:  0.9291333333333334
+Test loss:  0.22784665
+Test accuarcy:  0.9324081469648562
+
+[256,128]
+Training loss:  0.03555931
+Training accuracy:  0.9883
+Test loss:  0.0774295
+Test accuarcy:  0.9784345047923323
+
+-> [128,] seems relatively comparable to me
+
+2. Deviation
+if momentum = 1 -> loss gets bigger
+in between 0 and 1 worse than 0
+
+3. Deviation
+Most of the training is done in the first epoch, the rest is just finetuning
+If we make the learning rate smaller, it takes a little longer
+
+4. Deviation 
+decreasing batch size: 
+does not improve the learning but increases the time needed
+for batch size = 10
+Time needed for training:  576.3972113132477  sec
+Training loss:  0.1370969
+Training accuracy:  0.9645333333333342
+Test loss:  0.17432739
+Test accuarcy:  0.9580999999999997
+
