@@ -1,4 +1,4 @@
-1. Deviation 
+1. model architecture -> searching for a comparable simple model
 
 [256,256,],10
 Training loss:  0.02440399
@@ -42,19 +42,20 @@ Training accuracy:  0.9883
 Test loss:  0.0774295
 Test accuarcy:  0.9784345047923323
 
--> [128,] seems relatively comparable to me
+-> [128,] seems relatively comparable
 
-2. Deviation
+2. Momentum
 if momentum = 1 -> loss gets bigger
 in between 0 and 1 worse than 0
 
-3. Deviation
+3. learning rate
 Most of the training is done in the first epoch, the rest is just finetuning
 If we make the learning rate smaller, it takes a little longer
 
-4. Deviation 
+4. batch size
 decreasing batch size: 
 does not improve the learning but increases the time needed
+
 for batch size = 10
 Time needed for training:  576.3972113132477  sec
 Training loss:  0.1370969
