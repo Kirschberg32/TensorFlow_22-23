@@ -45,8 +45,8 @@ Test accuarcy:  0.9784345047923323
 -> [128,] seems relatively comparable
 
 2. Momentum
-if momentum = 1 -> loss gets bigger
-in between 0 and 1 worse than 0
+if momentum = 1 -> loss stays the same , no learning
+in between 0 and 1 -> results are everywhere the same, but it takes less time
 
 3. learning rate
 Most of the training is done in the first epoch, the rest is just finetuning

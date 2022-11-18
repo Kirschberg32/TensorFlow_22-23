@@ -18,7 +18,7 @@ import time
 # Hyperparameters
 EPOCHS = 10
 LEARNING_RATE = 0.02
-MOMENTUM = 0
+MOMENTUM = 0.9
 
 loss_function = tf.keras.losses.CategoricalCrossentropy()
 optimizer = tf.keras.optimizers.SGD(learning_rate = LEARNING_RATE,momentum=MOMENTUM)
