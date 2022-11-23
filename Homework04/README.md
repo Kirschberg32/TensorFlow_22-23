@@ -1,6 +1,6 @@
 # Execution:
-Open tensorboard by navigating to Homework4 and running `tensorboard --logdir logs/`<br />
-for starting a test with all the optimizers run [main.py](main.py)
+Open tensorboard by navigating to Homework4 and running `tensorboard --logdir logs/`.<br />
+For starting a test with all the optimizers run [main.py](main.py).
 
 # Files: 
 * [logs](logs): contains the logs for all the test runs
