@@ -46,7 +46,7 @@ def mnist_final_process(mnist):
     
 
 def get_processed_data(subtask):
-    """ loads and preprocesses the mnist dataset, with always two samples merged together, the target is decided by the target function """
+    """ loads and preprocesses the mnist dataset, with always two samples merged together, the target is decided by the target function dependent on the subtask given """
     
     training_data, test_data, _ = load_mnst(info=False)
     fn1 = lambda x,y: (x[0], y[0], x[1] + y[1] >= 5)
