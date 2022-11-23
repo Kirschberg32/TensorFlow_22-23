@@ -1,5 +1,5 @@
 # Execution:
-Open tensorboard by navigating to Homework4 and running tensorboard --logdir logs/
+Open tensorboard by navigating to Homework4 and running tensorboard --logdir logs/   
 for starting a test with all the optimizers run main.py
 
 # Files: 
