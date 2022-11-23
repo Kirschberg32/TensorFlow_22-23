@@ -7,10 +7,18 @@ import mnist_data as mnist
 
 def training_mnist(subtask,optimizer = tf.optimizers.SGD()):
 
-    config_name = "Run-42"
+    config_name = "SUB_" + str(subtask + 1)
+    optimizer_name = optimizer.__dict__.get('_name')
+    if (optimizer_name == None):
+        optimizer_name = optimizer.__dict__.get('name')
+    elif(optimizer_name == "SGD"):
+        optimizer_name += "_Momentum-" + str(optimizer.__dict__.get('_hyper')['momentum'])
+        
+    print("Optimizer: " + optimizer_name)
+    
     #current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_file_path = f"logs/{config_name}/train"
-    test_file_path = f"logs/{config_name}/test"
+    train_file_path = f"logs/{config_name}/{optimizer_name}/train"
+    test_file_path = f"logs/{config_name}/{optimizer_name}/test"
     train_summary_writer = tf.summary.create_file_writer(train_file_path)
     test_summary_writer = tf.summary.create_file_writer(test_file_path)
     
