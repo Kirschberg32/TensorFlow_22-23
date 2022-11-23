@@ -9,9 +9,12 @@ class MyModel(tf.keras.Model):
         """ Constructor 
         
         Parameters: 
+            loss_function = the loss function to use for training
+            optimizer = the optimizer to use for training
             hidden_units (list) = list containing one element for each hidden layer and the values are the units of each layer (should have at least a length of 1)
             output_units (int) = the number of wanted output units
             hidden_activation = the activation function for the hidden layers
+            output_activation = the activation function to use for the output layer
         """
 
         super(MyModel, self).__init__()
@@ -24,6 +27,7 @@ class MyModel(tf.keras.Model):
         self.metrices = [tf.keras.metrics.Mean(name = "loss")]
 
     def reset_metrics(self):
+        """ resets all the metrices that are observed during training and testing """
         for m in self.metrics:
             m.reset_states()
 
@@ -44,6 +48,13 @@ class MyModel(tf.keras.Model):
 
     @tf.function
     def train_step(self,data):
+        """ does one train step in one episode given a batch of data 
+        
+        Parameters: 
+            data (tuple) = shape (img1,img2, target)
+        
+        returns a dictionary of the metrics
+        """
 
         (img1, img2, targets) = data
 
@@ -64,6 +75,13 @@ class MyModel(tf.keras.Model):
 
     @tf.function
     def test_step(self,data):
+        """ does one test step in one episode given a batch of data 
+        
+        Parameters: 
+            data (tuple) = shape (img1,img2, target)
+        
+        returns a dictionary of the metrics
+        """
 
         (img1, img2, targets) = data
 
