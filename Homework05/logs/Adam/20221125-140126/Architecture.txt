@@ -1,0 +1,7 @@
+
+2 Blocks each 1 conv
+
+24
+48
+
+1 Dense having 10 output units

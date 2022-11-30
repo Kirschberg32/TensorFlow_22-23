@@ -1,0 +1,9 @@
+
+4 Blocks each 2 conv
+
+16
+32
+64
+128
+
+2 Dense having 128,10 output units (relu, last one softmax)
