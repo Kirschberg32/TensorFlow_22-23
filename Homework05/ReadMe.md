@@ -3,7 +3,7 @@ Open tensorboard by navigating to Homework4 and running `tensorboard --logdir lo
 
 # Files: 
 * [logs](logs): contains the logs for all the test runs
-* [Tensorboard_Plots](Tensorboard_Plots): contains images of the plots on tensorboard
+* [Plots](Plots): contains images of the plots on tensorboard
 * [main.py](main.py): only used for execution
 * [training.py](training.py): contains one full training loop and the LogWriter
 * [model.py](model.py): creation of MyCNNBlock and MyCNN class, containing train step and test step and metrices
