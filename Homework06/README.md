@@ -43,4 +43,4 @@ Using an L2 regularizer.
 
 The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse. As Skip connections it uses a ResNet architecture.
 
-<img src="Plots/all_noBatchNorm/20221211-181128.png" align="middle" alt="Plot of training results with all architectures" width="700"/>
+<img src="Plots/all_noBatchNorm/20221211-185934.png" align="middle" alt="Plot of training results with all architectures" width="700"/>
