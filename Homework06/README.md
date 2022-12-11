@@ -1,6 +1,3 @@
-# Execution:
-Open tensorboard by navigating to Homework6 and running `tensorboard --logdir logs/`. <br />
-
 # Files: 
 * [logs](logs): contains the logs for all the test runs
 * [csvs](csvs): contains csvs with the results from the test runs
