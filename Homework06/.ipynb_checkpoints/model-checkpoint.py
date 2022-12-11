@@ -19,7 +19,7 @@ class MyCNNNormalizationLayer(tf.keras.layers.Layer):
         """ forward propagation """
 
         x = self.conv_layer(x)
-        if self.norm_layer:
+        if(self.norm_layer != None):
             x = self.norm_layer(x,training)
 
         return x

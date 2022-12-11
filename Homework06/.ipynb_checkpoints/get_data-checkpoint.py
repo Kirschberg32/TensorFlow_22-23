@@ -19,7 +19,7 @@ def load_data(info : bool = False):
 
     return (train_ds, test_ds) , ds_info
 
-def data_preprocess(data, batch_size = 64, augment = None):
+def data_preprocess(data, augment = None):
     """ creates a data pipeline to preprocess the tensorflow datasets mnst dataset
     
     Parameters: 
@@ -38,7 +38,7 @@ def data_preprocess(data, batch_size = 64, augment = None):
     #cache shuffle, batch, prefetch
     data = data.cache()
     data = data.shuffle(1000)
-    data = data.batch(batch_size) 
+    data = data.batch(64) 
     # data augmentation
     if augment:
         data = data.map(lambda img,target : (augment(img), target),num_parallel_calls=tf.data.AUTOTUNE)
