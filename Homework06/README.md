@@ -49,5 +49,3 @@ The following run contains all optimizations except for batch normalization as i
 <img src="Plots/all/20221211-005823.png" align="left" alt="Plot of training results with all architectures" width="700"/>
 description
 <br clear="left"/>
-
-You can find all plots separately in [Plots](plots). 
