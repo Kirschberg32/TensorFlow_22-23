@@ -1,8 +1,8 @@
 # Files: 
-* [logs](logs): contains the logs for all the test runs
-* [csvs](csvs): contains csvs with the results from the test runs
-* [Plots](Plots): contains images of the plots
-* [main.py](main.py): only used for execution
+* [logs](logs): contains the tensorboard logs for all the runs
+* [csvs](csvs): contains csvs with the results from the runs
+* [Plots](Plots): contains images of the plots from all runs
+* [main.py](main.py): only used for execution or if preferred 
 * [training_loop.py](training_loop.py): contains one full training loop and the LogWriter
 * [model.py](model.py): creation of MyCNNNormalizationLayer, MyCNNBlock and MyCNN class, containing train step and test step and metrices
 * [get_data.py](get_data.py): contains all functions to load and preprocess the data
