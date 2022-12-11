@@ -11,7 +11,7 @@ Open tensorboard by navigating to Homework5 and running `tensorboard --logdir lo
 * [get_data.py](get_data.py): contains all functions to load, preprocess and augment the data
 
 # Overfitting: 
-1. We already tried to minimize overfitting in last weeks homework by choosing a simple architecture with good expressivity (best amount of parameters). Because this also optimizes leanability and performance. 
+We already tried to minimize overfitting in last weeks homework by choosing a simple architecture with good expressivity (best amount of parameters). Because this also optimizes leanability and performance. 
 We also normlized the data back then. <br />
 
 <img src="Plots/Original/20221210-165137.png" align="left" alt="Plot of training results with original architecture" width="300"/>
@@ -35,7 +35,7 @@ Batch Normalization does not work very well and seem to increase the amount of o
 <br clear="left"/>
 
 4. Dropout layers: Prevents overfitting. During training it randomly switches some percentage of neurons of network on and off. 
-<img src="Plots/Droupout_0.5/20221210-234117.png" align="left" alt="Plot of training results using droupout layers with a dropout rate of 0.5" width="300"/>
+<img src="Plots/Dropout_0.5/20221210-234117.png" align="left" alt="Plot of training results using droupout layers with a dropout rate of 0.5" width="300"/>
 Using droupout layers with a dropout rate of 0.5
 <br clear="left"/>
 
