@@ -5,11 +5,11 @@
 * [main.py](main.py): only used for execution
 * [training_loop.py](training_loop.py): contains one full training loop and the LogWriter
 * [model.py](model.py): creation of MyCNNNormalizationLayer, MyCNNBlock and MyCNN class, containing train step and test step and metrices
-* [get_data.py](get_data.py): contains all functions to load, preprocess and augment the data
+* [get_data.py](get_data.py): contains all functions to load and preprocess the data
 
 # Overfitting: 
 We already tried to minimize overfitting in last weeks homework by choosing a simple architecture with good expressivity (best amount of parameters). Because this also optimizes leanability and performance. 
-We also normlized the data back then. <br />
+We also normalized the data back then. <br />
 
 <img src="Plots/Original/20221210-165137.png" align="left" alt="Plot of training results with original architecture" width="700"/>
 You can see a slight overfitting, as there is a big difference in the curves of training and validation after about step 6. 
