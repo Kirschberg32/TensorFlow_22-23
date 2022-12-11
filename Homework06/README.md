@@ -37,7 +37,7 @@ Using droupout layers with a dropout rate of 0.5. Seems to take more time to lea
 <br clear="left"/>
 
 5. L2 Regularizer: Regularizes the loss by controlling the models complexity. We decided to use L2, because when using L1 you get small parameter values, because the absolute value is reduced. With L2 the square is minimized and therefore the biggest values are reduced. 
-<img src="Plots/Reg_L2/20221210-173112.png" align="left" alt="Plot of training results using an L2 regularizer" width="700"/>
+<img src="Plots/L2/20221211-181128.png" align="left" alt="Plot of training results using an L2 regularizer" width="700"/>
 Using an L2 regularizer. 
 <br clear="left"/>
 
