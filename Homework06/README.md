@@ -1,5 +1,5 @@
 # Execution:
-Open tensorboard by navigating to Homework5 and running `tensorboard --logdir logs/`. <br />
+Open tensorboard by navigating to Homework6 and running `tensorboard --logdir logs/`. <br />
 
 # Files: 
 * [logs](logs): contains the logs for all the test runs
@@ -36,12 +36,12 @@ Batch Normalization does not work very well and seem to increase the amount of o
 
 4. Dropout layers: Prevents overfitting. During training it randomly switches some percentage of neurons of network on and off. 
 <img src="Plots/Dropout_0.5/20221210-234117.png" align="left" alt="Plot of training results using droupout layers with a dropout rate of 0.5" width="700"/>
-Using droupout layers with a dropout rate of 0.5
+Using droupout layers with a dropout rate of 0.5. Seems to take more time to learn, which is expected as not all information is forwareded when training. 
 <br clear="left"/>
 
 5. L2 Regularizer: Regularizes the loss by controlling the models complexity. We decided to use L2, because when using L1 you get small parameter values, because the absolute value is reduced. With L2 the square is minimized and therefore the biggest values are reduced. 
 <img src="Plots/Reg_L2/20221210-173112.png" align="left" alt="Plot of training results using an L2 regularizer" width="700"/>
-Using an L2 regularizer
+Using an L2 regularizer. 
 <br clear="left"/>
 
 The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse. As Skip connections it uses a ResNet architecture.
