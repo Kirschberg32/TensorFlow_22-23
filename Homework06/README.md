@@ -41,6 +41,6 @@ Using droupout layers with a dropout rate of 0.5. Seems to take more time to lea
 Using an L2 regularizer. 
 <br clear="left"/>
 
-The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse. As Skip connections it uses a ResNet architecture.
+The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse. As Skip connections it uses a DenseNet architecture.
 
 <img src="Plots/all_noBatchNorm/20221211-164311.png" align="middle" alt="Plot of training results with all architectures" width="700"/>
