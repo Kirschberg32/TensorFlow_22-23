@@ -29,6 +29,7 @@ ResNet architecture.
 3. BatchNormalization layers: Avoids overfitting, provides regularization and can improve learning speed. It normalizes the output of one layer before it is given to the next layer. 
 <img src="Plots/Normalisation/20221210-195043.png" align="left" alt="Plot of training results using batch normalization" width="700"/>
 Batch Normalization does not work very well and seem to increase the amount of overfitting. 
+edit: Did not work correctly, we fixed it now. 
 <br clear="left"/>
 
 4. Dropout layers: Prevents overfitting. During training it randomly switches some percentage of neurons of network on and off. 
@@ -41,6 +42,6 @@ Using droupout layers with a dropout rate of 0.5. Seems to take more time to lea
 Using an L2 regularizer. 
 <br clear="left"/>
 
-The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse. As Skip connections it uses a ResNet architecture.
+The following run contains all optimizations except for batch normalization as it seems to make the overfitting worse (edit: fixed). As Skip connections it uses a ResNet architecture.
 
 <img src="Plots/all_noBatchNorm/20221211-185934.png" align="middle" alt="Plot of training results with all architectures" width="700"/>

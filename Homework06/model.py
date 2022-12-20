@@ -11,8 +11,9 @@ class MyCNNNormalizationLayer(tf.keras.layers.Layer):
             normalization (boolean) = whether the output of the layer should be normalized 
         """
         super(MyCNNNormalizationLayer, self).__init__()
-        self.conv_layer = tf.keras.layers.Conv2D(filters=filters, kernel_size=3, padding='same', activation='relu', kernel_regularizer = reg)
+        self.conv_layer = tf.keras.layers.Conv2D(filters=filters, kernel_size=3, padding='same', kernel_regularizer = reg)
         self.norm_layer = tf.keras.layers.BatchNormalization() if normalization else None
+        self.activation = tf.keras.layers.Activation("relu")
 
     @tf.function
     def call(self,x,training=None):
@@ -21,6 +22,7 @@ class MyCNNNormalizationLayer(tf.keras.layers.Layer):
         x = self.conv_layer(x)
         if self.norm_layer:
             x = self.norm_layer(x,training)
+        x = self.activation(x)
 
         return x
 
