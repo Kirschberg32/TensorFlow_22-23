@@ -1,116 +1,148 @@
 import tensorflow as tf
 
-class RNNCell(tf.keras.layers.AbstractRNNCell):
+class LSTMCell(tf.keras.layers.AbstractRNNCell):
 
-    def __init__(self, recurrent_units_1, recurrent_units_2, **kwargs):
+    def __init__(self, units, **kwargs):
         super().__init__(**kwargs)
 
-        self.recurrent_units_1 = recurrent_units_1
-        self.recurrent_units_2 = recurrent_units_2
+        self.units = units
+
+        self.inputConcat = tf.keras.layers.Concatenate(axis=-1)
+
+        # layer for forget gate using sigmoid
+        self.sigmoid1_layer = tf.keras.layers.Dense(self.units, 
+                                                kernel_initializer=tf.keras.initializers.Orthogonal(
+                                                    gain=1.0, seed=None), 
+                                                activation=tf.nn.sigmoid)
+
+        self.multiplier = tf.keras.layers.Multiply()
+
+        # layer for input gate using sigmoid
+        self.sigmoid2_layer = tf.keras.layers.Dense(self.units, 
+                                                kernel_initializer=tf.keras.initializers.Orthogonal(
+                                                    gain=1.0, seed=None), 
+                                                activation=tf.nn.sigmoid)
         
-        self.linear_1 = tf.keras.layers.Dense(recurrent_units_1)
-        self.linear_2 = tf.keras.layers.Dense(recurrent_units_2)
+        # layer for input gate using tanh
+        self.tanh_layer = tf.keras.layers.Dense(self.units, 
+                                                kernel_initializer=tf.keras.initializers.Orthogonal(
+                                                    gain=1.0, seed=None), 
+                                                activation= tf.nn.tanh)
+        self.adder = tf.keras.layers.Add()
+
+        # layer for output gate using sigmoid
+        self.sigmoid3_layer = tf.keras.layers.Dense(self.units, 
+                                                kernel_initializer=tf.keras.initializers.Orthogonal(
+                                                    gain=1.0, seed=None), 
+                                                activation=tf.nn.sigmoid)
+
+        self.tanh = tf.keras.layers.Activation("tanh")
         
-        # first recurrent layer in the RNN
-        self.recurrent_layer_1 = tf.keras.layers.Dense(recurrent_units_1, 
-                                                       kernel_initializer= tf.keras.initializers.Orthogonal(
-                                                           gain=1.0, seed=None),
-                                                       activation=tf.nn.tanh)
-        # layer normalization for trainability
-        self.layer_norm_1 = tf.keras.layers.LayerNormalization()
-        
-        # second recurrent layer in the RNN
-        self.recurrent_layer_2 = tf.keras.layers.Dense(recurrent_units_2, 
-                                                       kernel_initializer= tf.keras.initializers.Orthogonal(
-                                                           gain=1.0, seed=None), 
-                                                       activation=tf.nn.tanh)
         # layer normalization for trainability
         self.layer_norm_2 = tf.keras.layers.LayerNormalization()
     
     @property
     def state_size(self):
-        return [tf.TensorShape([self.recurrent_units_1]), 
-                tf.TensorShape([self.recurrent_units_2])]
+        return [tf.TensorShape([self.units]), 
+                tf.TensorShape([self.units])]
     @property
     def output_size(self):
-        return [tf.TensorShape([self.recurrent_units_2])]
+        return [tf.TensorShape([self.units])]
     
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
-        return [tf.zeros([self.recurrent_units_1]), 
-                tf.zeros([self.recurrent_units_2])]
+        return [tf.zeros([self.units]), 
+                tf.zeros([self.units])]
 
     def call(self, inputs, states):
         # unpack the states
-        state_layer_1 = states[0]
-        state_layer_2 = states[1]
+        hidden_state = states[0]
+        cell_state = states[1]
+
+        # concat both as input
+        x = self.inputConcat([inputs,hidden_state])
+        x_forget = self.sigmoid1_layer(x)
+        new_cell_state = self.multiplier([cell_state,x_forget])
+        x_input1 = self.sigmoid2_layer(x)
+        x_input2 = self.tanh_layer(x)
+        x_input = self.multiplier([x_input1,x_input2])
+        new_cell_state = self.adder([new_cell_state,x_input])
+        x_output = self.sigmoid3_layer(x)
+        new_hidden_state = output = self.multiplier([self.tanh(new_cell_state),x_output])
         
-        # linearly project input
-        x = self.linear_1(inputs) + state_layer_1
-        
-        # apply first recurrent kernel
-        new_state_layer_1 = self.recurrent_layer_1(x)
-        
-        # apply layer norm
-        x = self.layer_norm_1(new_state_layer_1)
-        
-        # linearly project output of layer norm
-        x = self.linear_2(x) + state_layer_2
-        
-        # apply second recurrent layer
-        new_state_layer_2 = self.recurrent_layer_2(x)
-        
-        # apply second layer's layer norm
-        x = self.layer_norm_2(new_state_layer_2)
-        
-        # return output and the list of new states of the layers
-        return x, [new_state_layer_1, new_state_layer_2]
+        return output, [new_hidden_state, new_cell_state]
     
     def get_config(self):
-        return {"recurrent_units_1": self.recurrent_units_1, 
-                "recurrent_units_2": self.recurrent_units_2}
+        return {"hidden_units": self.units}
     
-"""    
-class MinimalRNNCell(AbstractRNNCell):
+class MyCNNBlock(tf.keras.layers.Layer):
+    """ a block for a CNN having several convoluted layers with filters and kernel size 3 and ReLu as the activation function """
 
-    def __init__(self, units, **kwargs):
-      self.units = units
-      super(MinimalRNNCell, self).__init__(**kwargs)
-
-    @property
-    def state_size(self):
-      return self.units
-
-    def build(self, input_shape):
-      self.kernel = self.add_weight(shape=(input_shape[-1], self.units),
-                                    initializer='uniform',
-                                    name='kernel')
-      self.recurrent_kernel = self.add_weight(
-          shape=(self.units, self.units),
-          initializer='uniform',
-          name='recurrent_kernel')
-      self.built = True
-
-    def call(self, inputs, states):
-      prev_output = states[0]
-      h = backend.dot(inputs, self.kernel)
-      output = h + backend.dot(prev_output, self.recurrent_kernel)
-      return output, output
-"""    
-class MyRNN(tf.keras.Model):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,layers,filters,input_shape = None,global_pool = False,mode = False, reg = None, dropout_layer = None):
+        """ Constructor 
         
-        self.rnn_cell = RNNCell(recurrent_units_1=24,
-                                recurrent_units_2=48)
+        Parameters: 
+            layers (int) = how many Conv2D you want
+            filters (int) = how many filters the Conv2D layers should have
+            global_pool (boolean) = global average pooling at the end if True else MaxPooling2D
+            denseNet (boolean) = whether we want to implement a denseNet (creates a concatenate layer if True)
+        """
+
+        super(MyCNNBlock, self).__init__()
+
+        self.conv_layers =  [tf.keras.layers.Conv2D(filters=self.filters, kernel_size=3, padding='same', kernel_regularizer = self.regularizer, batch_input_shape=input.shape[2:]) for _ in range(self.layers)]
+
+        self.dropout_layer = dropout_layer
+        self.filters = filters
+        self.regularizer = reg
+        self.layers = layers
+        self.mode = mode
+        switch_mode = {"dense":tf.keras.layers.Concatenate(axis=-1), "res": tf.keras.layers.Add(),}
+        self.extra_layer = None if mode == None else switch_mode.get(mode,f"{mode} is not a valid mode for MyCNN. Choose from 'dense' or 'res'.")
+        if global_pool is not None:
+            self.pool = tf.keras.layers.GlobalAvgPool2D() if global_pool else tf.keras.layers.MaxPooling2D(pool_size=2, strides=2)
+
+    @tf.function
+    def call(self,input,training=None):
+        """ forward propagation of this block """
+        x = input
+        for i, layer in enumerate(self.conv_layers):
+            x = layer(x)
+            if(i==0 and self.mode == "res"): # for resnet add output of first layer to final output, not input of first layer
+                input = x
+            if self.dropout_layer:
+                x = self.dropout_layer(x, training)
+        if(self.extra_layer is not None):
+            x = self.extra_layer([input,x])
+
+        x = self.pool(x)
+        return x
+ 
+class MyLSTMModel(tf.keras.Model):
+    def __init__(self, optimizer,input_shape, lstm_units = 12, output_units : int = 1, mode = None,dropout_rate = None, regularizer = None):
+        super().__init__()
+
+        self.reg = regularizer
+        self.dropout_rate = dropout_rate
+        self.optimizer = optimizer
+        self.dropout_layer = tf.keras.layers.Dropout(dropout_rate) if self.dropout_rate else None
+        self.loss_function = tf.losses.MeanSquaredError()
+
+        self.conv_block1 = MyCNNBlock(layers = 2, filters = 24, input_shape= input_shape, mode = mode, reg = self.reg, dropout_layer = self.dropout_layer)
+        self.conv_block2 = MyCNNBlock(layers = 2, filters = 48, input_shape= input_shape, global_pool = None, mode = mode, reg = self.reg, dropout_layer = self.dropout_layer) # no pooling at all
+
+        self.global_pooling = tf.keras.layers.GlobalAvgPool2D()
+        self.timedistributed = tf.keras.layers.TimeDistributed(self.global_pooling)
+        
+        self.lstm_cell = LSTMCell(units=lstm_units)
         
         # return_sequences collects and returns the output of the rnn_cell for all time-steps
         # unroll unrolls the network for speed (at the cost of memory)
-        self.rnn_layer = tf.keras.layers.RNN(self.rnn_cell, return_sequences=False, unroll=True)
+        self.rnn_buffer =tf.keras.layers.RNN(self.lstm_cell, return_sequences=True, unroll=True)
         
-        self.output_layer = tf.keras.layers.Dense(1, activation="sigmoid")
+        self.output_layer = tf.keras.layers.Dense(output_units, activation="linear")
         
-        self.metrics_list = [tf.keras.metrics.Mean(name="loss"),
-                             tf.keras.metrics.BinaryAccuracy()]
+        self.metrics_list = [tf.keras.metrics.Mean(name = "loss"),
+                             tf.keras.metrics.Accuracy(name="accuracy")]
     
     @property
     def metrics(self):
@@ -120,11 +152,16 @@ class MyRNN(tf.keras.Model):
         for metric in self.metrics:
             metric.reset_state()
         
-    def call(self, sequence, training=False):
+    @tf.function
+    def call(self, x, training=False):
         
-        rnn_output = self.rnn_layer(sequence)
+        x = self.conv_block1(x,training = training)
+        x = self.conv_block2(x, training = training)
+
+        x = self.timedistributed(x)
+        x = self.rnn_buffer(x)
         
-        return self.output_layer(rnn_output)
+        return self.output_layer(x)
     
     def train_step(self, data):
         
@@ -135,7 +172,7 @@ class MyRNN(tf.keras.Model):
         sequence, label = data
         with tf.GradientTape() as tape:
             output = self(sequence, training=True)
-            loss = self.compiled_loss(label, output, regularization_losses=self.losses)
+            loss = self.loss_function(label, output, regularization_losses=self.losses)
         gradients = tape.gradient(loss, self.trainable_variables)
         
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
@@ -153,7 +190,7 @@ class MyRNN(tf.keras.Model):
         
         sequence, label = data
         output = self(sequence, training=False)
-        loss = self.compiled_loss(label, output, regularization_losses=self.losses)
+        loss = self.loss_function(label, output, regularization_losses=self.losses)
                 
         self.metrics[0].update_state(loss)
         self.metrics[1].update_state(label, output)
