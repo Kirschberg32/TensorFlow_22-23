@@ -118,12 +118,11 @@ class MyCNNBlock(tf.keras.layers.Layer):
         return x
  
 class MyLSTMModel(tf.keras.Model):
-    def __init__(self, optimizer,input_shape, lstm_units = 12, output_units : int = 1, mode = None,dropout_rate = None, regularizer = None):
+    def __init__(self, input_shape, lstm_units = 12, output_units : int = 1, mode = None,dropout_rate = None, regularizer = None):
         super().__init__()
 
         self.reg = regularizer
         self.dropout_rate = dropout_rate
-        self.optimizer = optimizer
         self.dropout_layer = tf.keras.layers.Dropout(dropout_rate) if self.dropout_rate else None
         self.loss_function = tf.losses.MeanSquaredError()
 
@@ -172,7 +171,7 @@ class MyLSTMModel(tf.keras.Model):
         sequence, label = data
         with tf.GradientTape() as tape:
             output = self(sequence, training=True)
-            loss = self.loss_function(label, output, regularization_losses=self.losses)
+            loss = self.compiled_loss(label, output, regularization_losses=self.losses)
         gradients = tape.gradient(loss, self.trainable_variables)
         
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
@@ -190,7 +189,7 @@ class MyLSTMModel(tf.keras.Model):
         
         sequence, label = data
         output = self(sequence, training=False)
-        loss = self.loss_function(label, output, regularization_losses=self.losses)
+        loss = self.compiled_loss(label, output, regularization_losses=self.losses)
                 
         self.metrics[0].update_state(loss)
         self.metrics[1].update_state(label, output)

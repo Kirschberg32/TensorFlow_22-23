@@ -1,6 +1,5 @@
 import tensorflow_datasets as tfds
 import tensorflow as tf
-import keras_cv
 
 # preprocessing the data
 def load_data(info : bool = False):
@@ -46,9 +45,6 @@ def data_preprocess(data, batch_size = 64, sequence = 6):
     data = data.cache()
     data = data.shuffle(1000)
     data = data.batch(batch_size) 
-    # data augmentation
-    if augment:
-        data = data.map(lambda img,target : (augment(img), target),num_parallel_calls=tf.data.AUTOTUNE)
         
     data = data.prefetch(tf.data.AUTOTUNE)
     return data
