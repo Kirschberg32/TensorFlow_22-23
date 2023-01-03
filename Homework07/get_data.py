@@ -33,7 +33,7 @@ def data_preprocess(data, batch_size = 64, sequence = 6):
     # normalize the image values
     data = data.map(lambda img, target: ((img/128.)-1., target))
     # creating one-hot-vectors 
-    data = data.map(lambda img, target: (img, tf.one_hot(target, depth=10)))
+    data = data.map(lambda img, target: (img, tf.one_hot(target, depth=sequence)))
 
     # alternate positive, negative target values
     range_vals = tf.range(sequence)
