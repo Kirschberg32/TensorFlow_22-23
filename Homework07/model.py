@@ -83,21 +83,21 @@ class MyCNNBlock(tf.keras.layers.Layer):
         Parameters: 
             layers (int) = how many Conv2D you want
             filters (int) = how many filters the Conv2D layers should have
-            global_pool (boolean) = global average pooling at the end if True else MaxPooling2D
-            denseNet (boolean) = whether we want to implement a denseNet (creates a concatenate layer if True)
+            global_pool (boolean) = global average pooling at the end if True else MaxPooling2D, if None then no pooling at all
+            mode (string) = whether we want to implement a denseNet ("dense") or a ResNet "res" or none of them (None)
+            reg = the Regularizer to use
+            dropout_layer = the dropout layer to use
         """
 
         super(MyCNNBlock, self).__init__()
 
-        self.conv_layers =  [tf.keras.layers.Conv2D(filters=self.filters, kernel_size=3, padding='same', kernel_regularizer = self.regularizer, batch_input_shape=input.shape[2:]) for _ in range(self.layers)]
-
         self.dropout_layer = dropout_layer
-        self.filters = filters
-        self.regularizer = reg
-        self.layers = layers
+        self.conv_layers =  [tf.keras.layers.Conv2D(filters=filters, kernel_size=3, padding='same', kernel_regularizer = reg, batch_input_shape=input_shape) for _ in range(layers)]
+
         self.mode = mode
         switch_mode = {"dense":tf.keras.layers.Concatenate(axis=-1), "res": tf.keras.layers.Add(),}
         self.extra_layer = None if mode == None else switch_mode.get(mode,f"{mode} is not a valid mode for MyCNN. Choose from 'dense' or 'res'.")
+
         if global_pool is not None:
             self.pool = tf.keras.layers.GlobalAvgPool2D() if global_pool else tf.keras.layers.MaxPooling2D(pool_size=2, strides=2)
 
