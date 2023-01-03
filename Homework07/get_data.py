@@ -32,14 +32,19 @@ def data_preprocess(data, batch_size = 64, sequence = 6):
     # normalize the image values
     data = data.map(lambda img, target: ((img/128.)-1., target))
     # creating one-hot-vectors 
-    data = data.map(lambda img, target: (img, tf.one_hot(target, depth=sequence)))
+    #data = data.map(lambda img, target: (img, tf.one_hot(target, depth=sequence)))
+
+    data = data.shuffle(4000) # shuffle before creating sequences in case the data is ordered
+
+    # create a sequence of the images
+    if sequence != None:
+        data = data.batch(sequence,drop_remainder = True)
 
     # alternate positive, negative target values
     range_vals = tf.range(sequence)
-
-    data = data.map(lambda img, target:(img, tf.where(tf.math.floormod(range_vals,2)==0, target, -target)))
-
-    data = data.map(lambda img, target:(img, (tf.math.cumsum(target))))
+    data = data.map(lambda img, target: (img, tf.where(tf.math.floormod(range_vals,2)==0, target, tf.math.negative(target))))
+    # calculate the cumulative
+    data = data.map(lambda img, target: (img, tf.math.cumsum(target)))
     
     #cache shuffle, batch, prefetch
     data = data.cache()

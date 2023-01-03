@@ -98,6 +98,7 @@ class MyCNNBlock(tf.keras.layers.Layer):
         switch_mode = {"dense":tf.keras.layers.Concatenate(axis=-1), "res": tf.keras.layers.Add(),}
         self.extra_layer = None if mode == None else switch_mode.get(mode,f"{mode} is not a valid mode for MyCNN. Choose from 'dense' or 'res'.")
 
+        self.pool = global_pool
         if global_pool is not None:
             self.pool = tf.keras.layers.GlobalAvgPool2D() if global_pool else tf.keras.layers.MaxPooling2D(pool_size=2, strides=2)
 
@@ -114,7 +115,8 @@ class MyCNNBlock(tf.keras.layers.Layer):
         if(self.extra_layer is not None):
             x = self.extra_layer([input,x])
 
-        x = self.pool(x)
+        if(self.pool != None):
+            x = self.pool(x)
         return x
  
 class MyLSTMModel(tf.keras.Model):
@@ -136,7 +138,7 @@ class MyLSTMModel(tf.keras.Model):
         
         # return_sequences collects and returns the output of the rnn_cell for all time-steps
         # unroll unrolls the network for speed (at the cost of memory)
-        self.rnn_buffer =tf.keras.layers.RNN(self.lstm_cell, return_sequences=True, unroll=True)
+        self.rnn_buffer =tf.keras.layers.RNN(self.lstm_cell, return_sequences=True)
         
         self.output_layer = tf.keras.layers.Dense(output_units, activation="linear")
         
