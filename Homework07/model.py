@@ -50,8 +50,9 @@ class LSTMCell(tf.keras.layers.AbstractRNNCell):
         return [tf.TensorShape([self.units])]
     
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
-        return [tf.zeros([self.units]), 
-                tf.zeros([self.units])]
+        # two entries of list, one beeing the hidden and the other the cell state
+        # each entry has to contain the batch_size too
+        return [tf.zeros([batch_size,self.units]), tf.zeros([batch_size,self.units])]
 
     def call(self, inputs, states):
         # unpack the states
