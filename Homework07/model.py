@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-class LSTMCell(tf.keras.layers.AbstractRNNCell):
+class MyLSTMCell(tf.keras.layers.AbstractRNNCell):
 
     def __init__(self, units, **kwargs):
         super().__init__(**kwargs)
@@ -135,7 +135,7 @@ class MyLSTMModel(tf.keras.Model):
         self.global_pooling = tf.keras.layers.GlobalAvgPool2D()
         self.timedistributed = tf.keras.layers.TimeDistributed(self.global_pooling)
         
-        self.lstm_cell = LSTMCell(units=lstm_units)
+        self.lstm_cell = MyLSTMCell(units=lstm_units)
         
         # return_sequences collects and returns the output of the rnn_cell for all time-steps
         # unroll unrolls the network for speed (at the cost of memory)

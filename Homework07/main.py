@@ -2,10 +2,11 @@ import get_data
 from model import MyLSTMModel
 import tensorflow_datasets as tfds
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
 loss = tf.keras.losses.MeanSquaredError()
-epochs = 1
+epochs = 15
 batch_size = 64
 sequence = 6
 lstm_units = 15
@@ -24,3 +25,12 @@ model.compile(optimizer = optimizer, loss=loss)
 logging_callback = tf.keras.callbacks.TensorBoard(log_dir="./logs/run1")
 
 history = model.fit(training_data, validation_data = val_data, epochs=epochs, batch_size=batch_size, callbacks=[logging_callback])
+
+model.save("saved_model/run1")
+
+plt.plot(history.history["loss"])
+plt.plot(history.history["val_loss"])
+plt.legend(labels=["training","validation"])
+plt.xlabel("Epoch")
+plt.ylabel("Mean Squared Error")
+plt.show()

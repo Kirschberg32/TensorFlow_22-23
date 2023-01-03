@@ -34,7 +34,7 @@ def data_preprocess(data, batch_size = 64, sequence = 6):
 
     # create a sequence of the images
     if sequence != None:
-        data = data.batch(sequence,drop_remainder = True)
+        data = data.batch(sequence, drop_remainder = True)
 
     # alternate positive, negative target values
     range_vals = tf.range(sequence)
