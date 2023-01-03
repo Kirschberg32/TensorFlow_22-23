@@ -27,12 +27,8 @@ def data_preprocess(data, batch_size = 64, sequence = 6):
 
     # cast to float
     data = data.map(lambda img, target: (tf.cast(img, tf.float32), target))
-    # flatten
-    #data = data.map(lambda img, target: (tf.reshape(img, (-1,)), target))
     # normalize the image values
     data = data.map(lambda img, target: ((img/128.)-1., target))
-    # creating one-hot-vectors 
-    #data = data.map(lambda img, target: (img, tf.one_hot(target, depth=sequence)))
 
     data = data.shuffle(4000) # shuffle before creating sequences in case the data is ordered
 

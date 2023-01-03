@@ -83,6 +83,7 @@ class MyCNNBlock(tf.keras.layers.Layer):
         Parameters: 
             layers (int) = how many Conv2D you want
             filters (int) = how many filters the Conv2D layers should have
+            input_shape (tuple) = just the input that is not supposed to be batches (e.g. batches and sequences at the top)
             global_pool (boolean) = global average pooling at the end if True else MaxPooling2D, if None then no pooling at all
             mode (string) = whether we want to implement a denseNet ("dense") or a ResNet "res" or none of them (None)
             reg = the Regularizer to use
@@ -92,7 +93,7 @@ class MyCNNBlock(tf.keras.layers.Layer):
         super(MyCNNBlock, self).__init__()
 
         self.dropout_layer = dropout_layer
-        self.conv_layers =  [tf.keras.layers.Conv2D(filters=filters, kernel_size=3, padding='same', kernel_regularizer = reg, batch_input_shape=input_shape) for _ in range(layers)]
+        self.conv_layers =  [tf.keras.layers.Conv2D(filters=filters, kernel_size=3, padding='same', kernel_regularizer = reg, input_shape=input_shape) for _ in range(layers)]
 
         self.mode = mode
         switch_mode = {"dense":tf.keras.layers.Concatenate(axis=-1), "res": tf.keras.layers.Add(),}
@@ -100,7 +101,7 @@ class MyCNNBlock(tf.keras.layers.Layer):
 
         self.pool = global_pool
         if global_pool is not None:
-            self.pool = tf.keras.layers.GlobalAvgPool2D() if global_pool else tf.keras.layers.MaxPooling2D(pool_size=2, strides=2)
+            self.pool = tf.keras.layers.GlobalAvgPool2D() if global_pool else tf.keras.layers.MaxPooling2D(pool_size=2, strides=2,input_shape = input_shape)
 
     @tf.function
     def call(self,input,training=None):
@@ -120,16 +121,15 @@ class MyCNNBlock(tf.keras.layers.Layer):
         return x
  
 class MyLSTMModel(tf.keras.Model):
-    def __init__(self, input_shape, lstm_units = 12, output_units : int = 1, mode = None,dropout_rate = None, regularizer = None):
+    def __init__(self, total_input_shape, lstm_units = 12, output_units : int = 1, mode = None,dropout_rate = None, regularizer = None):
         super().__init__()
 
         self.reg = regularizer
         self.dropout_rate = dropout_rate
         self.dropout_layer = tf.keras.layers.Dropout(dropout_rate) if self.dropout_rate else None
         self.loss_function = tf.losses.MeanSquaredError()
-
-        self.conv_block1 = MyCNNBlock(layers = 2, filters = 24, input_shape= input_shape, mode = mode, reg = self.reg, dropout_layer = self.dropout_layer)
-        self.conv_block2 = MyCNNBlock(layers = 2, filters = 48, input_shape= input_shape, global_pool = None, mode = mode, reg = self.reg, dropout_layer = self.dropout_layer) # no pooling at all
+        
+        self.conv_block1 = MyCNNBlock(layers = 2, filters = 24, input_shape= total_input_shape[2:], global_pool = None, mode = mode, reg = self.reg, dropout_layer = self.dropout_layer) # Input: (batch_size,sequence,28,28,1)
 
         self.global_pooling = tf.keras.layers.GlobalAvgPool2D()
         self.timedistributed = tf.keras.layers.TimeDistributed(self.global_pooling)
@@ -157,7 +157,6 @@ class MyLSTMModel(tf.keras.Model):
     def call(self, x, training=False):
         
         x = self.conv_block1(x,training = training)
-        x = self.conv_block2(x, training = training)
 
         x = self.timedistributed(x)
         x = self.rnn_buffer(x)
