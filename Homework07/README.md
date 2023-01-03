@@ -10,3 +10,4 @@ Plot of training results with 15 epochs in run 1. The LSTM had 15 Units
 * [model.py](model.py): creation of MyCNNBlock and MyLSTMCell and MyLSTMModel, containing train step and test step and metrices
 * [get_data.py](get_data.py): contains all functions to load and preprocess the data
 * [saved_model](saved_model): contains all saved models
+* [Plots](Plots): contains images with saved plots from the runs
