@@ -5,9 +5,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 from sklearn.manifold import TSNE
+import numpy as np
 
-config = "testrun1"
-epochs = 2 # around 10
+config = "run2"
+epochs = 15 # around 10
 batch_size = 64
 noise_std = 0.2
 embedding = 10
@@ -17,7 +18,7 @@ loss = tf.losses.MeanSquaredError()
 
 # get and prepare data and model
 (training_data, o_val_data ) , ds_info = get_data.load_data(False) # True
-training_data = training_data.take(100) # 
+#training_data = training_data.take(10) # 
 training_data = get_data.data_preprocess(training_data, batch_size = batch_size,noisy = noise_std)
 val_data = get_data.data_preprocess(o_val_data, batch_size = batch_size, noisy = noise_std)
 
@@ -50,11 +51,25 @@ os.makedirs(f"Plots/", exist_ok = True)
 
 plt.scatter(sample_embedding_reduced[:,0],sample_embedding_reduced[:,1],c=t)
 plt.title("Embedding")
-plt.savefig(f"Plots/embedding_{config}.png")
+plt.savefig(f"Plots/{config}_embedding.png")
 plt.show()
 
 # Interpolation
+how_many = 5
+embedding1 = sample_embedding[0]
+embedding2 = sample_embedding[1]
+interpolation_embeddings = tf.linspace(embedding1,embedding2,how_many,axis=0)
+interpolation_results = decoder(interpolation_embeddings)
 
+f, axes = plt.subplots(1,how_many)
+for i in range(how_many):
+    axes[i].imshow(interpolation_results[i])
+    # the titels are too long, only works if you make the plot full screen
+    #axes[i].set_title(np.around(interpolation_embeddings[i].numpy(),decimals=2))
+plt.savefig(f"Plots/{config}_interpolation.png")
+plt.show()
+
+# plot the training results
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])
 plt.legend(labels=["training","validation"])
