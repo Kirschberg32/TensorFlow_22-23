@@ -72,6 +72,7 @@ class MyCNN(tf.keras.Model):
         Parameters: 
             optimizer = the optimizer to use for training
             output_units (int) = the number of wanted output units
+            filter_start (int) = filters for the first CNN Block
             mode (String) = whether to implement a DenseNet "dense" ore a ResNet "res"
             normalization (boolean) = whether to have normalization layers
             dropout_rate (0<= int <1) = rate of dropout for after input and after dense
@@ -80,18 +81,15 @@ class MyCNN(tf.keras.Model):
 
         super(MyCNN, self).__init__()
 
-        # architecture
         self.reg = regularizer
         self.dropout_rate = dropout_rate
         self.dropout_layer = tf.keras.layers.Dropout(dropout_rate) if self.dropout_rate else None
+
         self.block1 = MyCNNBlock(layers = 2,filters = filter_start,mode = mode,normalization = normalization, reg = self.reg, dropout_layer = self.dropout_layer)
         self.block2 = MyCNNBlock(layers = 2,filters = filter_start*2,mode = mode,normalization = normalization, reg = self.reg, dropout_layer = self.dropout_layer)
 
         self.flatten = tf.keras.layers.Flatten()
         self.out = tf.keras.layers.Dense(output_units, activation=tf.nn.softmax)
-
-        self.loss_function = tf.losses.CategoricalCrossentropy()
-        self.optimizer = optimizer
 
     @tf.function
     def call(self, x, training = False):
@@ -104,53 +102,27 @@ class MyCNN(tf.keras.Model):
         x = self.out(x,training = training)
         return x
 
-    @tf.function
-    def train_step(self,data):
-        """ does one train step in one episode given a batch of data 
-        
-        Parameters: 
-            data (tuple) = shape (img, target)
-        
-        returns a dictionary of the metrics
-        """
+class MyDecoder(tf.keras.Model):
 
-        img, targets = data
+    def __init__(self,filter_start = 24,):
 
-        with tf.GradientTape() as tape: 
+        super(MyDecoder,self).__init__()
 
-            predictions = self(img,training=True)
-            loss = self.loss_function(targets, predictions, regularization_losses=self.losses)
+        self.dense1 = tf.keras.layers.Dense(7*7*filter_start*2)
+        self.reshape = tf.keras.layers.Reshape((7,7,filter_start*2)) # batch size nicht !
 
-            self.metrics[0].update_state(values = loss) # loss
-            self.metrics[1].update_state(predictions, targets) # accuracy
-
-        # get the gradients
-        gradients = tape.gradient(loss,self.trainable_variables)
-
-        # apply the gradient
-        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
-
-        return{m.name : m.result() for m in self.metrics}
+        self.trans1 = tf.keras.layers.Conv2DTranspose(filter_start,kernel_size=3,strides = 2, padding="same") # strides = 2 doubles the size of the image
+        self.trans2 = tf.keras.layers.Conv2DTranspose(1,kernel_size=3,strides = 2, padding="same",activation=tf.nn.sigmoid)
 
     @tf.function
-    def test_step(self,data):
-        """ does one test step in one episode given a batch of data 
+    def call(self, x, training = False):
+        """ forward propagation of the Decoder"""
         
-        Parameters: 
-            data (tuple) = shape (img, target)
-        
-        returns a dictionary of the metrics
-        """
-
-        img, targets = data
-
-        predictions = self(img,training=False)
-        loss = self.loss_function(targets, predictions, regularization_losses=self.losses)
-
-        self.metrics[0].update_state(values = loss) # loss
-        self.metrics[1].update_state(predictions, targets) # accuracy
-
-        return{m.name : m.result() for m in self.metrics}
+        x = self.dense1(x)
+        x = self.reshape(x)
+        x = self.trans1(x)
+        x = self.trans2(x)
+        return x
 
 class MyAutoencoder(tf.keras.Model): 
 
@@ -178,8 +150,7 @@ class MyAutoencoder(tf.keras.Model):
         return x
 
     @tf.function
-    def train_step(self, data):
-        
+    def train_step(self, data):  
         """
         Standard train_step method, assuming we use model.compile(optimizer, loss, ...)
         """
@@ -198,79 +169,13 @@ class MyAutoencoder(tf.keras.Model):
         return {m.name : m.result() for m in self.metrics}
     
     @tf.function
-    def test_step(self, data):
-        
+    def test_step(self, data):       
         """
         Standard test_step method, assuming we use model.compile(optimizer, loss, ...)
         """
         
         image, target = data
         output = self(image, training=False)
-        loss = self.compiled_loss(target, output, regularization_losses=self.losses)
-                
-        self.metrics[0].update_state(loss)
-        self.metrics[1].update_state(target, output)
-        
-        return {m.name : m.result() for m in self.metrics}
-
-class MyDecoder(tf.keras.Model): # has to be compiled and fitted, otherwise no optimizer and loss
-
-    def __init__(self,filter_start = 24,):
-
-        super(MyDecoder,self).__init__()
-
-        self.dense1 = tf.keras.layers.Dense(7*7*filter_start*2)
-        self.reshape = tf.keras.layers.Reshape((7,7,filter_start*2)) # batch size nicht !
-
-        self.trans1 = tf.keras.layers.Conv2DTranspose(filter_start,kernel_size=3,strides = 2, padding="same") # strides = 2 doubles the size of the image
-        self.trans2 = tf.keras.layers.Conv2DTranspose(1,kernel_size=3,strides = 2, padding="same",activation=tf.nn.sigmoid)
-
-        self.metrices = [tf.keras.metrics.Mean(name = "loss"), tf.keras.metrics.Accuracy(name = "accuracy")]
-
-    def reset_metrics(self):
-        """ resets all the metrices that are observed during training and testing """
-        for m in self.metrics:
-            m.reset_states()
-
-    @tf.function
-    def call(self, x, training = False):
-        """ forward propagation of the Autoencoder"""
-        
-        x = self.dense1(x)
-        x = self.reshape(x)
-        x = self.trans1(x)
-        x = self.trans2(x)
-        return x
-
-    @tf.function
-    def train_step(self, data):
-        
-        """
-        Standard train_step method, assuming we use model.compile(optimizer, loss, ...)
-        """
-        
-        emb, target = data
-        with tf.GradientTape() as tape:
-            output = self(emb, training=True)
-            loss = self.compiled_loss(target, output, regularization_losses=self.losses)
-        gradients = tape.gradient(loss, self.trainable_variables)
-        
-        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
-        
-        self.metrics[0].update_state(loss)
-        self.metrics[1].update_state(target, output)
-        
-        return {m.name : m.result() for m in self.metrics}
-    
-    @tf.function
-    def test_step(self, data):
-        
-        """
-        Standard test_step method, assuming we use model.compile(optimizer, loss, ...)
-        """
-        
-        emb, target = data
-        output = self(emb, training=False)
         loss = self.compiled_loss(target, output, regularization_losses=self.losses)
                 
         self.metrics[0].update_state(loss)
