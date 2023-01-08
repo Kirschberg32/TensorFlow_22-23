@@ -7,7 +7,7 @@ import os
 from sklearn.manifold import TSNE
 
 config = "testrun1"
-epochs = 10 # around 10
+epochs = 2 # around 10
 batch_size = 64
 noise_std = 0.2
 embedding = 10
@@ -38,20 +38,22 @@ encoder.save(f"encoder/{config}")
 decoder.save(f"decoder/{config}")
 
 # latent space analysis
-test_samples = get_data.data_preprocess(o_val_data[:1000], batch_size = 1000, noisy = noise_std)
+test_samples = get_data.data_preprocess(o_val_data.take(1000), batch_size = 1000, noisy = noise_std, targets = True)
 for sample in test_samples:
-    s,t = sample
-    sample_embedding = encoder(s) # put noisy images in encoder to get the embeddings
+    n,o,t = sample
+    sample_embedding = encoder(n) # put noisy images in encoder to get the embeddings
     break
 
 sample_embedding_reduced = TSNE(n_components=2).fit_transform(sample_embedding)
 
 os.makedirs(f"Plots/", exist_ok = True)
 
-plt.scatter(sample_embedding_reduced)
+plt.scatter(sample_embedding_reduced[:,0],sample_embedding_reduced[:,1],c=t)
 plt.title("Embedding")
-plt.savefig(f"Plots/{config}.png")
+plt.savefig(f"Plots/embedding_{config}.png")
 plt.show()
+
+# Interpolation
 
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])

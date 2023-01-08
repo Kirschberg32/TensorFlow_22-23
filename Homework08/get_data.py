@@ -17,7 +17,7 @@ def load_data(info : bool = False):
 
     return (train_ds, test_ds) , ds_info
 
-def data_preprocess(data, batch_size = 64,noisy = 0.1):
+def data_preprocess(data, batch_size = 64,noisy = 0.1,targets = False):
     """ creates a data pipeline to preprocess the tensorflow datasets mnst dataset
     
     Parameters: 
@@ -35,6 +35,9 @@ def data_preprocess(data, batch_size = 64,noisy = 0.1):
     # add a color channel dimension (the color channel dimension already exists in mnist)
     # data = data.map(lambda img, target: ( tf.expand_dims(img,axis=-1), target ) )
 
+    if targets:
+        targets_data = data.map(lambda img, target: target)
+
     # remove the targets, add noise instead
     data = data.map(lambda img, target: (tf.random.normal(shape=img.shape,mean=0,stddev=noisy), img) )
 
@@ -43,6 +46,10 @@ def data_preprocess(data, batch_size = 64,noisy = 0.1):
     data = data.map(lambda noise, img: (tf.add(noise,img),img))
     # keep image in the right area
     data = data.map(lambda noise, img: (tf.clip_by_value(noise,clip_value_min=-1,clip_value_max=1),img))
+
+    if targets: 
+        data = tf.data.Dataset.zip((data,targets_data))
+        data = data.map(lambda images, targets: (images[0],images[1],targets))
     
     #cache shuffle, batch, prefetch
     data = data.cache()
