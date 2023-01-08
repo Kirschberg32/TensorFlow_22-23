@@ -119,7 +119,7 @@ class MyCNN(tf.keras.Model):
         with tf.GradientTape() as tape: 
 
             predictions = self(img,training=True)
-            loss = self.loss_function(targets, tf.squeeze(predictions)) #+ self.losses # regularize
+            loss = self.loss_function(targets, predictions, regularization_losses=self.losses)
 
             self.metrics[0].update_state(values = loss) # loss
             self.metrics[1].update_state(predictions, targets) # accuracy
@@ -145,7 +145,7 @@ class MyCNN(tf.keras.Model):
         img, targets = data
 
         predictions = self(img,training=False)
-        loss = self.loss_function(targets, tf.squeeze(predictions))
+        loss = self.loss_function(targets, predictions, regularization_losses=self.losses)
 
         self.metrics[0].update_state(values = loss) # loss
         self.metrics[1].update_state(predictions, targets) # accuracy
@@ -178,51 +178,37 @@ class MyAutoencoder(tf.keras.Model):
         return x
 
     @tf.function
-    def train_step(self,data):
-        """ does one train step in one episode given a batch of data 
+    def train_step(self, data):
         
-        Parameters: 
-            data (tuple) = shape (img, target)
-        
-        returns a dictionary of the metrics
         """
-
-        img, targets = data
-
-        with tf.GradientTape() as tape: 
-
-            predictions = self(img,training=True)
-            loss = self.loss_function(targets, tf.squeeze(predictions)) #+ self.losses # regularize
-
-            self.metrics[0].update_state(values = loss) # loss
-            self.metrics[1].update_state(predictions, targets) # accuracy
-
-        # get the gradients
-        gradients = tape.gradient(loss,self.trainable_variables)
-
-        # apply the gradient
+        Standard train_step method, assuming we use model.compile(optimizer, loss, ...)
+        """
+        
+        image, target = data
+        with tf.GradientTape() as tape:
+            output = self(image, training=True)
+            loss = self.compiled_loss(target, output, regularization_losses=self.losses)
+        gradients = tape.gradient(loss, self.trainable_variables)
+        
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
-
-        return{m.name : m.result() for m in self.metrics}
-
-    @tf.function
-    def test_step(self,data):
-        """ does one test step in one episode given a batch of data 
         
-        Parameters: 
-            data (tuple) = shape (img, target)
+        self.metrics[0].update_state(loss)
+        self.metrics[1].update_state(target, output)
         
-        returns a dictionary of the metrics
-        """
-
-        img, targets = data
-
-        predictions = self(img,training=False)
-        loss = self.loss_function(targets, tf.squeeze(predictions))
-
-        self.metrics[0].update_state(values = loss) # loss
-        self.metrics[1].update_state(predictions, targets) # accuracy
-
-        return{m.name : m.result() for m in self.metrics}
+        return {m.name : m.result() for m in self.metrics}
     
-
+    @tf.function
+    def test_step(self, data):
+        
+        """
+        Standard test_step method, assuming we use model.compile(optimizer, loss, ...)
+        """
+        
+        image, target = data
+        output = self(image, training=False)
+        loss = self.compiled_loss(target, output, regularization_losses=self.losses)
+                
+        self.metrics[0].update_state(loss)
+        self.metrics[1].update_state(target, output)
+        
+        return {m.name : m.result() for m in self.metrics}
