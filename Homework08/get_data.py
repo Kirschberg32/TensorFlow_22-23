@@ -28,7 +28,7 @@ def data_preprocess(data, batch_size = 64,noisy = 0.1,targets = False):
     # cast to float
     data = data.map(lambda img, target: (tf.cast(img, tf.float32), target))
     # normalize the image values
-    data = data.map(lambda img, target: ((img/128.)-1., target))
+    data = data.map(lambda img, target: ((img/255), target)) # create in between 0 and 1
 
     # create the specific data we want: 
 
@@ -53,7 +53,7 @@ def data_preprocess(data, batch_size = 64,noisy = 0.1,targets = False):
     
     #cache shuffle, batch, prefetch
     data = data.cache()
-    data = data.shuffle(1000)
+    data = data.shuffle(3000)
     data = data.batch(batch_size)
         
     data = data.prefetch(tf.data.AUTOTUNE)

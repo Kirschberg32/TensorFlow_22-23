@@ -7,8 +7,8 @@ import os
 from sklearn.manifold import TSNE
 import numpy as np
 
-config = "run3"
-epochs = 10 # around 10
+config_in = "run1"
+config_out = "testtsne1"
 batch_size = 64
 noise_std = 0.2
 embedding = 10
@@ -23,22 +23,8 @@ loss = tf.losses.MeanSquaredError()
 training_data = get_data.data_preprocess(training_data, batch_size = batch_size,noisy = noise_std)
 val_data = get_data.data_preprocess(o_val_data, batch_size = batch_size, noisy = noise_std)
 
-encoder = MyCNN(optimizer,embedding,filter_start = 24, regularizer=tf.keras.regularizers.L2(0.001))
-decoder = MyDecoder(24)
-
-model = MyAutoencoder(encoder,decoder)
-
-# compile and fit
-
-model.compile(optimizer = optimizer, loss=loss)
-
-logging_callback = tf.keras.callbacks.TensorBoard(log_dir=f"./logs/{config}")
-
-history = model.fit(training_data, validation_data = val_data, epochs=epochs, batch_size=batch_size, callbacks=[logging_callback])
-
-model.save(f"saved_model/{config}")
-encoder.save(f"saved_encoder/{config}")
-decoder.save(f"saved_decoder/{config}")
+encoder = tf.keras.models.load_model(f"saved_encoder/{config_in}")
+decoder = tf.keras.models.load_model(f"saved_decoder/{config_in}")
 
 # latent space analysis
 
@@ -48,13 +34,16 @@ for sample in test_samples:
     sample_embedding = encoder(n) # put noisy images in encoder to get the embeddings
     break
 
+print(tf.reduce_min(sample_embedding))
+print(tf.reduce_max(sample_embedding))
+
 sample_embedding_reduced = TSNE(n_components=2).fit_transform(sample_embedding)
 
 os.makedirs(f"Plots/", exist_ok = True)
 
 plt.scatter(sample_embedding_reduced[:,0],sample_embedding_reduced[:,1],c=t)
 plt.title("Embedding")
-plt.savefig(f"Plots/{config}_embedding.png")
+plt.savefig(f"Plots/{config_out}_embedding.png")
 plt.show()
 
 # Interpolation
@@ -70,15 +59,5 @@ for i in range(how_many):
     axes[i].imshow(interpolation_results[i])
     # the titels are too long, only works if you make the plot full screen
     #axes[i].set_title(np.around(interpolation_embeddings[i].numpy(),decimals=2))
-plt.savefig(f"Plots/{config}_interpolation.png")
-plt.show()
-
-# plot the training results
-
-plt.plot(history.history["loss"])
-plt.plot(history.history["val_loss"])
-plt.legend(labels=["training","validation"])
-plt.xlabel("Epoch")
-plt.ylabel("Mean Squared Error")
-plt.savefig(f"Plots/{config}.png")
+plt.savefig(f"Plots/{config_out}_interpolation.png")
 plt.show()

@@ -89,7 +89,7 @@ class MyCNN(tf.keras.Model):
         self.block2 = MyCNNBlock(layers = 2,filters = filter_start*2,mode = mode,normalization = normalization, reg = self.reg, dropout_layer = self.dropout_layer)
 
         self.flatten = tf.keras.layers.Flatten()
-        self.out = tf.keras.layers.Dense(output_units, activation=tf.nn.softmax)
+        self.out = tf.keras.layers.Dense(output_units, activation=tf.nn.relu)
 
     @tf.function
     def call(self, x, training = False):

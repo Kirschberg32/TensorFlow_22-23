@@ -9,7 +9,7 @@
 * [saved_decoder](saved_decoder): contains the saved decoders
 
 <img src="Plots/run2.png" align="left" alt="Plot of training results with 15 epochs in run 2" width="700"/>
-Plot of training results with 15 epochs in run 2. The Embedding was of size 10. 
+Plot of training results with 10 epochs in run 2. The Embedding was of size 10. 
 <br clear="left"/>
 
 # Latent Space Analysis
