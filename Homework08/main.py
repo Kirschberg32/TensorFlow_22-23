@@ -17,6 +17,7 @@ optimizer = tf.optimizers.Adam(learning_rate=0.001)
 loss = tf.losses.MeanSquaredError()
 
 # get and prepare data and model
+
 (training_data, o_val_data ) , ds_info = get_data.load_data(False) # True
 #training_data = training_data.take(10) # 
 training_data = get_data.data_preprocess(training_data, batch_size = batch_size,noisy = noise_std)
@@ -28,6 +29,7 @@ decoder = MyDecoder(24)
 model = MyAutoencoder(encoder,decoder)
 
 # compile and fit
+
 model.compile(optimizer = optimizer, loss=loss)
 
 logging_callback = tf.keras.callbacks.TensorBoard(log_dir=f"./logs/{config}")
@@ -35,10 +37,11 @@ logging_callback = tf.keras.callbacks.TensorBoard(log_dir=f"./logs/{config}")
 history = model.fit(training_data, validation_data = val_data, epochs=epochs, batch_size=batch_size, callbacks=[logging_callback])
 
 model.save(f"saved_model/{config}")
-encoder.save(f"encoder/{config}")
-decoder.save(f"decoder/{config}")
+encoder.save(f"saved_encoder/{config}")
+decoder.save(f"saved_decoder/{config}")
 
 # latent space analysis
+
 test_samples = get_data.data_preprocess(o_val_data.take(1000), batch_size = 1000, noisy = noise_std, targets = True)
 for sample in test_samples:
     n,o,t = sample
@@ -55,6 +58,7 @@ plt.savefig(f"Plots/{config}_embedding.png")
 plt.show()
 
 # Interpolation
+
 how_many = 5
 embedding1 = sample_embedding[0]
 embedding2 = sample_embedding[1]
@@ -70,6 +74,7 @@ plt.savefig(f"Plots/{config}_interpolation.png")
 plt.show()
 
 # plot the training results
+
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])
 plt.legend(labels=["training","validation"])

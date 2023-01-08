@@ -1,12 +1,22 @@
-# LSTM
-We programmed our own LSTM cell by using AbstractRNNCell. It is supposed to approximate the cumulative sum of a sequence of images, where every second image is substracted instead of added. 
-<img src="Plots/run1.png" align="left" alt="Plot of training results with 15 epochs in run 1" width="700"/>
-Plot of training results with 15 epochs in run 1. The LSTM had 15 Units
-<br clear="left"/>
-
 # Files: 
 * [logs](logs): contains the tensorboard logs for all the runs
-* [main.py](main.py): only used for execution or if preferred use [main.ipynb] instead. These files do contain the training as we used compile and fit instead of writing our own training loop
-* [model.py](model.py): creation of MyCNNBlock and MyLSTMCell and MyLSTMModel, containing train step and test step and metrices
-* [get_data.py](get_data.py): contains all functions to load and preprocess the data
-* [saved_model](saved_model): contains all saved models
+* [Plots](Plots): contains all saved plots
+* [main.py](main.py): only used for execution and creating all the analysis and plots. These files do contain the training as we used compile and fit instead of writing our own training loop
+* [model.py](model.py): creation of MyCNNBlock, MyCNNNormalizationLayer, MyCNN as an encoder, MyDecoder and MyAutoencoder
+* [get_data.py](get_data.py): contains all functions to load and preprocess the mnist data
+* [saved_model](saved_model): contains the total saved models
+* [saved_encoder](saved_encoder): contains all the saved encoders
+* [saved_decoder](saved_decoder): contains the saved decoders
+
+<img src="Plots/run2.png" align="left" alt="Plot of training results with 15 epochs in run 2" width="700"/>
+Plot of training results with 15 epochs in run 2. The Embedding was of size 10. 
+<br clear="left"/>
+
+# Latent Space Analysis
+<img src="Plots/run2_embedded.png" align="left" alt="Plot of the embeddings" width="700"/>
+The embeddings for the first 1000 validation set images, reduced to two dimensions. 
+<br clear="left"/>
+Evaluation
+<img src="Plots/run2_interpolation.png" align="left" alt="Plot of an interpolation between two embeddings" width="700"/>
+An Interpolation between two embeddings created by the decoder. 
+<br clear="left"/>
