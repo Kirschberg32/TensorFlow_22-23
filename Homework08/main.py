@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 import os
 from sklearn.manifold import TSNE
 import numpy as np
+import pandas as pd
+import seaborn as sns
 
-config = "run3"
+
+config = "run-1"
 epochs = 10 # around 10
 batch_size = 64
 noise_std = 0.2
@@ -52,10 +55,15 @@ sample_embedding_reduced = TSNE(n_components=2).fit_transform(sample_embedding)
 
 os.makedirs(f"Plots/", exist_ok = True)
 
-plt.scatter(sample_embedding_reduced[:,0],sample_embedding_reduced[:,1],c=t)
+# Plot the result of our TSNE with the label color coded
+result_df = pd.DataFrame({'tsne_1': sample_embedding_reduced[:,0], 'tsne_2': sample_embedding_reduced[:,1], 'label': t[:1000]})
+
+plt.figure(figsize=(10,8))
+sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=result_df, palette = sns.color_palette("husl", 10))
 plt.title("Embedding")
 plt.savefig(f"Plots/{config}_embedding.png")
 plt.show()
+
 
 # Interpolation
 

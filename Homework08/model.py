@@ -112,7 +112,10 @@ class MyDecoder(tf.keras.Model):
         self.reshape = tf.keras.layers.Reshape((7,7,filter_start*2)) # batch size nicht !
 
         self.trans1 = tf.keras.layers.Conv2DTranspose(filter_start,kernel_size=3,strides = 2, padding="same") # strides = 2 doubles the size of the image
-        self.trans2 = tf.keras.layers.Conv2DTranspose(1,kernel_size=3,strides = 2, padding="same",activation=tf.nn.sigmoid)
+        self.trans2 = tf.keras.layers.Conv2DTranspose(1,kernel_size=3,strides = 2, padding="same")
+        
+        # As an output layer, use a convolutional layer with one filter and sigmoid activation to produce an output image
+        self.output_layer = tf.keras.layers.Conv2D(filters=1, kernel_size=3, padding='same', strides=1, activation='sigmoid')
 
     @tf.function
     def call(self, x, training = False):
