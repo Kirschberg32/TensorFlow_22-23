@@ -1,8 +1,6 @@
 import tensorflow as tf
 import tqdm
 import datetime
-from imageio.v2 import imwrite
-import numpy as np
 
 import get_data
 
@@ -85,8 +83,6 @@ def training_candles(training_data, test_data, discriminator, generator,epochs, 
             break
         output = discriminator(ex_images)
         example_images.append([ex_images , output])
-        image_to_save = (ex_images[0][0] + 1)/2 * 255
-        imwrite(f"Images/{config_name}/episode{e}.png",image_to_save.numpy().astype(np.uint8))
 
         discriminator.reset_metrics()
 

@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
-config = "run-test"
+config = "run2-500samplesize"
 category = 'candle'
-epochs = 2 # around 10
+epochs = 10 # around 10
 batch_size = 64
 latent_space = 100
-sample_size = 10000 # 10000
+sample_size = 500
 train_size = 0.8
 
 optimizer = tf.optimizers.Adam(learning_rate=0.001)
@@ -44,6 +44,6 @@ f, axes = plt.subplots(epochs,1)
 for i in range(epochs):
     axes[i].imshow(example_images[i][0][0])
     number = np.around(example_images[i][1][0].numpy(),decimals=2)[0]
-    axes[i].set_title(f"E: {i}; P: {number}")
+    axes[i].set_title(f"E: {i}; Prediction: {number}")
 plt.savefig(f"Plots/{config}_example_images.png")
 plt.show()
