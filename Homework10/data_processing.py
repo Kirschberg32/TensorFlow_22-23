@@ -26,14 +26,10 @@ def nlp_preprocess(data, most_common_size :int = 10000):
     tokens = [i for sublst in data for i in sublst if i]
     return tokens, tokenizer
 
-def pairing(tokens, win_len):
+def pairing(tokens, vocabulary_size, win_len):
     """ creates pairs of words that are next ot each other in a window size of win_len """
-    pairs = []
-    for i, word in enumerate(tokens):
-        if i <= len(tokens) - win_len:
-            for j in range(1, win_len):
-                pairs.append([word, tokens[i + j]])
-    return pairs
+    pairs, labels = tf.keras.preprocessing.sequence.skipgrams(tokens, vocabulary_size, win_len)
+    return pairs, labels
 
 def data_preprocess(data, batch_size :int = 64):
     """ creates a data pipeline to preprocess the tensorflow datasets mnst dataset
@@ -49,25 +45,24 @@ def data_preprocess(data, batch_size :int = 64):
     data = data.prefetch(tf.data.AUTOTUNE)
     return data
 
-def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 5, train_part : float = 0.8):
+def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 2, train_part : float = 0.8):
     """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
     
     data = load_data(path)
     #preprocesse
     tokens, tokenizer = nlp_preprocess(data,most_common_size)
-    pairs = pairing(tokens, window_size)
+    pairs, targets = pairing(tokens, window_size) # default shuffle here and creates negative samples
 
     # split in train and test set
     pairs_len = len(pairs)
     train_len = int(pairs_len * train_part)
     train_pairs, test_pairs = pairs[:train_len], pairs[train_len:]
+    train_targets, test_targets = targets[:train_len], targets[train_len:]
 
     # tf Dataset and Preprocess
-    train_ds = tf.data.Dataset.from_tensor_slices(train_pairs)
-    test_ds = tf.data.Dataset.from_tensor_slices(test_pairs)
+    train_ds = tf.data.Dataset.from_tensor_slices((train_pairs,train_targets))
+    test_ds = tf.data.Dataset.from_tensor_slices((test_pairs,test_targets))
     train_ds = data_preprocess(train_ds)
-    test_data = data_preprocess(test_ds)
+    test_ds = data_preprocess(test_ds)
 
     return (train_ds, test_ds), tokenizer
-
-
