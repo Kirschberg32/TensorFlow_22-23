@@ -1,5 +1,3 @@
-import re
-import collections
 import tensorflow as tf
 
 def load_data(path):
@@ -26,7 +24,7 @@ def nlp_preprocess(data, most_common_size :int = 10000):
     tokenizer.fit_on_texts(data)
     data = tokenizer.texts_to_sequences(data)
     tokens = [i for sublst in data for i in sublst if i]
-    return tokens
+    return tokens, tokenizer
 
 def pairing(tokens, win_len):
     """ creates pairs of words that are next ot each other in a window size of win_len """
@@ -51,7 +49,25 @@ def data_preprocess(data, batch_size :int = 64):
     data = data.prefetch(tf.data.AUTOTUNE)
     return data
 
-def get_preprocessed_data(path : str, ):
+def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 5, train_part : float = 0.8):
+    """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
+    
     data = load_data(path)
-    pass
+    #preprocesse
+    tokens, tokenizer = nlp_preprocess(data,most_common_size)
+    pairs = pairing(tokens, window_size)
+
+    # split in train and test set
+    pairs_len = len(pairs)
+    train_len = int(pairs_len * train_part)
+    train_pairs, test_pairs = pairs[:train_len], pairs[train_len:]
+
+    # tf Dataset and Preprocess
+    train_ds = tf.data.Dataset.from_tensor_slices(train_pairs)
+    test_ds = tf.data.Dataset.from_tensor_slices(test_pairs)
+    train_ds = data_preprocess(train_ds)
+    test_data = data_preprocess(test_ds)
+
+    return (train_ds, test_ds), tokenizer
+
 
