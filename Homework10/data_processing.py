@@ -2,42 +2,8 @@ import tensorflow as tf
 
 def load_data(path):
     with open(path) as f:
-        data = f.read()
-    print("loaded")
+        data = f.readlines()
     return data
-
-def get_tokenizer(num_words : int = 10000):
-    tokenizer = tf.keras.preprocessing.text.Tokenizer(
-        num_words=num_words,
-        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n1234567890',
-    )
-    print("tokenizer ready")
-    return tokenizer
-
-def nlp_preprocess(data, most_common_size :int = 10000):
-    """ takes a text and returns the tokens, or the most_common_size most common tokens 
-    retuns a flat list with all the tokens of the text in order
-    """
-    
-    if (most_common_size != None):
-        tokenizer = get_tokenizer(most_common_size)
-        print("Right tokenizer")
-    else:
-        tokenizer = get_tokenizer()
-    print("After ifelse tokenizer")
-    tokenizer.fit_on_texts(data)
-    print("After fit on text")
-    data = tokenizer.texts_to_sequences(data)
-    print("after text to sequence")
-    tokens = [i for sublst in data for i in sublst if i]
-    print("flattend")
-    return tokens, tokenizer
-
-def pairing(tokens, vocabulary_size, win_len):
-    """ creates pairs of words that are next ot each other in a window size of win_len """
-    pairs, labels = tf.keras.preprocessing.sequence.skipgrams(tokens, vocabulary_size, win_len)
-    print("done pairing")
-    return pairs, labels
 
 def data_preprocess(data, batch_size :int = 64):
     """ creates a data pipeline to preprocess the tensorflow datasets mnst dataset
@@ -57,12 +23,27 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
     
     data = load_data(path)
-    #preprocesse
-    tokens, tokenizer = nlp_preprocess(data,most_common_size)
-    pairs, targets = pairing(tokens,most_common_size, window_size) # default shuffle here and creates negative samples
+    #tokenization
+    tokenizer = tf.keras.preprocessing.text.Tokenizer(
+        num_words=most_common_size,
+        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n1234567890',
+    )
+    print("After getting tokenizer")
+    tokenizer.fit_on_texts(data)
+    print("After fit on text")
+    tokens = tokenizer.texts_to_sequences(data)
+    print("after text to sequence")
+    tokens = [i for sublst in tokens for i in sublst if i]
+    print("flattend")
+
+    # pairing
+    pairs, targets = tf.keras.preprocessing.sequence.skipgrams(tokens, most_common_size, window_size)# default shuffle here and creates negative samples
+
+    print("done pairing")
 
     # split in train and test set
     pairs_len = len(pairs)
+    print("Pairs length: ", pairs_len)
     train_len = int(pairs_len * train_part)
     train_pairs, test_pairs = pairs[:train_len], pairs[train_len:]
     train_targets, test_targets = targets[:train_len], targets[train_len:]
