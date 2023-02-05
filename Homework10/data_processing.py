@@ -22,7 +22,7 @@ def data_preprocess(data, batch_size :int = 64):
     data = data.prefetch(tf.data.AUTOTUNE)
     return data
 
-def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 2, train_part : float = 0.8):
+def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 2, train_part : float = 0.8,batch_size : int = 64):
     """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
     
     data = load_data(path)
@@ -48,7 +48,7 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     print("Initialize Paring:", end = " ")
     sec = time.time()
     # pairing
-    pairs, targets = tf.keras.preprocessing.sequence.skipgrams(tokens, most_common_size, window_size)# default shuffle here and creates negative samples
+    pairs, _ = tf.keras.preprocessing.sequence.skipgrams(tokens, most_common_size, window_size, negative_samples = 0)# default shuffle here
     print("Done: ", round(time.time() - sec, 4) ,"sec")
     
     
@@ -57,21 +57,21 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     print("Pairs length: ", pairs_len)
     train_len = int(pairs_len * train_part)
     train_pairs, test_pairs = pairs[:train_len], pairs[train_len:]
-    train_targets, test_targets = targets[:train_len], targets[train_len:]
+    #train_targets, test_targets = targets[:train_len], targets[train_len:]
     
     print("Create Datasets and initialize Preprocess:", end = " ")
     sec = time.time()
     # tf Dataset and Preprocess    
     train_ds = tf.data.Dataset.from_tensor_slices(train_pairs)
     test_ds = tf.data.Dataset.from_tensor_slices(test_pairs)
-    train_targets = tf.data.Dataset.from_tensor_slices(train_targets)
-    test_targets = tf.data.Dataset.from_tensor_slices(test_targets)
+    #train_targets = tf.data.Dataset.from_tensor_slices(train_targets)
+    #test_targets = tf.data.Dataset.from_tensor_slices(test_targets)
 
-    train_ds = tf.data.Dataset.zip((train_ds,train_targets))
-    test_ds = tf.data.Dataset.zip((test_ds,test_targets))
+    #train_ds = tf.data.Dataset.zip((train_ds,train_targets))
+    #test_ds = tf.data.Dataset.zip((test_ds,test_targets))
 
-    train_ds = data_preprocess(train_ds)
-    test_ds = data_preprocess(test_ds)
+    train_ds = data_preprocess(train_ds,batch_size)
+    test_ds = data_preprocess(test_ds,batch_size)
     print("Done: ", round(time.time() - sec, 4) ,"sec")
     
     return (train_ds, test_ds), tokenizer
