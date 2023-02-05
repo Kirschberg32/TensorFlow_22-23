@@ -16,3 +16,4 @@ EMBEDDING = 64 # size of the embedding
 
 model = SkipGram(VOCABULARY,EMBEDDING)
 model.compile(optimizer='adam')
+

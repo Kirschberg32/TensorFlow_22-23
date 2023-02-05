@@ -1,9 +1,11 @@
 import tensorflow as tf
 import time
+from nltk.corpus import stopwords
+from collections import Counter
 
 def load_data(path):
     with open(path) as f:
-        data = f.readlines()
+        data = f.read()
     return data
 
 def data_preprocess(data, batch_size :int = 64):
@@ -24,6 +26,11 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
     
     data = load_data(path)
+
+    # remove stop words of english
+    stop_words = stopwords.words('english')
+    stopwords_dict = Counter(stop_words)
+    data = ' '.join([word for word in data.split(" ") if word.lower() not in stopwords_dict]).split("\n")
     
     #tokenization
     print("Initilaize creating Tokens:", end = " ")
