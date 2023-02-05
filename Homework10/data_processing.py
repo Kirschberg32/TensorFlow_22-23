@@ -26,7 +26,7 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     data = load_data(path)
     
     #tokenization
-    print("Initilaize creating Tokens:")
+    print("Initilaize creating Tokens:", end = " ")
     sec = time.time()
     tokenizer = tf.keras.preprocessing.text.Tokenizer(
         num_words=most_common_size,
@@ -38,7 +38,7 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     tokens = [i for sublst in tokens for i in sublst if i]
     print("Done: ", round(time.time() - sec, 4) ,"sec")
     
-    print("Initialize Paring:")
+    print("Initialize Paring:", end = " ")
     sec = time.time()
     # pairing
     pairs, targets = tf.keras.preprocessing.sequence.skipgrams(tokens, most_common_size, window_size)# default shuffle here and creates negative samples
@@ -52,7 +52,7 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     train_pairs, test_pairs = pairs[:train_len], pairs[train_len:]
     train_targets, test_targets = targets[:train_len], targets[train_len:]
     
-    print("Create Datasets and initialize Preprocess:")
+    print("Create Datasets and initialize Preprocess:", end = " ")
     sec = time.time()
     # tf Dataset and Preprocess    
     train_ds = tf.data.Dataset.from_tensor_slices(train_pairs)
