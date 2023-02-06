@@ -25,13 +25,15 @@ def data_preprocess(data, batch_size :int = 64):
 def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size : int = 2, train_part : float = 0.8,batch_size : int = 64):
     """ loads and fully prepares the dataset, returns the tokanizer for later usage"""
     
-    data = load_data(path)
-
+    data = load_data(path) 
+    data = data.replace("\n"," \n ")
+    print(data[:1000])
     # remove stop words of english
     stop_words = stopwords.words('english')
     stopwords_dict = Counter(stop_words)
     data = ' '.join([word for word in data.split(" ") if word.lower() not in stopwords_dict]).split("\n")
-    
+    for i in data[:1000]:
+        print(i)
     #tokenization
     print("Initilaize creating Tokens:", end = " ")
     sec = time.time()
@@ -43,13 +45,13 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
     tokenizer.fit_on_texts(data)
     tokens = tokenizer.texts_to_sequences(data)
     tokens = [i for sublst in tokens for i in sublst if i]
-    print("Done: ", round(time.time() - sec, 4) ,"sec")
+    print(round(time.time() - sec, 4) ,"sec")
     
     print("Initialize Paring:", end = " ")
     sec = time.time()
     # pairing
     pairs, _ = tf.keras.preprocessing.sequence.skipgrams(tokens, most_common_size, window_size, negative_samples = 0)# default shuffle here
-    print("Done: ", round(time.time() - sec, 4) ,"sec")
+    print(round(time.time() - sec, 4) ,"sec")
     
     
     # split in train and test set
@@ -72,6 +74,6 @@ def get_preprocessed_data(path : str, most_common_size : int = 10000,window_size
 
     train_ds = data_preprocess(train_ds,batch_size)
     test_ds = data_preprocess(test_ds,batch_size)
-    print("Done: ", round(time.time() - sec, 4) ,"sec")
+    print(round(time.time() - sec, 4) ,"sec")
     
     return (train_ds, test_ds), tokenizer
