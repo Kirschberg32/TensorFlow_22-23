@@ -9,14 +9,14 @@ from model import SkipGram, get_Model
 file_name = "bible.txt"
 file_path = f"data/{file_name}"
 
-config_name = "test1"
+config_name = "Voc-10000_Epoch-15"
 
-VOCABULARY = 100 #10000
+VOCABULARY = 10000 #10000
 WINDOW = 1 # because window is i - 2 and i + 2 then = 5
 TRAIN_PART = 0.8 # partition of the data to be training data
 EMBEDDING = 32 # size of the embedding
 BATCH = 64 # batch_size
-EPOCHS = 1
+EPOCHS = 15
 K = 5
 NEGATIVE_SAMPLES = 1
 
@@ -45,7 +45,7 @@ test_file_path = f"logs/{config_name}/{time_string}/test"
 train_summary_writer = tf.summary.create_file_writer(train_file_path)
 test_summary_writer = tf.summary.create_file_writer(test_file_path)
 
-for e in range(EPOCHS):
+for e in range (EPOCHS):
 
     for s in tqdm.tqdm(train_ds,position=0,leave=True):
         metrics = model.train_step(tf.expand_dims(s,axis=-1))
@@ -67,19 +67,20 @@ for e in range(EPOCHS):
 
     # calculate embedding of words
     track_words_embedding = [tf.nn.embedding_lookup(model.embedding, tf.expand_dims(w,axis=-1)) for w in words_sequence]
-
-    for j,tw in enumerate(track_words_embedding):
+    for j,tw in enumerate (tqdm.tqdm(track_words_embedding)):
         # calculate cosine similarities between whole and words 
         cosines = [(cosine_similarity(tw,we),i) for i,we in enumerate(whole_embedding)]
 
         # sort by distance and return k-nearest
         sorted_cosines = sorted(cosines, reverse=True)
-
         # sequence to text of nearest neighbours
-        words_neighbors = tf.reshape(tokenizer.sequences_to_texts([tf.reshape(sorted_cosines[:K],(K,-1))[:,1].numpy()]),[-1])
-
+        words_neighbours = tf.reshape(tokenizer.sequences_to_texts([tf.reshape(sorted_cosines[:K],(K,-1))[:,1].numpy()]),[-1])
+        words_neighbours = str(words_neighbours.numpy().item())[2:-1]
         # print word with its k-nearest (maybe with cosine similarities)
-        print(words_keep_track[j], ": ", words_neighbors.numpy())
+        print(words_keep_track[j], ": ")
+        for i, word in enumerate(words_neighbours.split(" ")):
+            print(word, ": ", sorted_cosines[i].__str__().split(",")[2][7:-1])
+        print()
 
 
 
