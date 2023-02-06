@@ -3,7 +3,7 @@ import tqdm
 import datetime
 
 from data_processing import get_preprocessed_data
-from model import SkipGram
+from model import SkipGram, get_Model
 
 # loading data
 file_name = "bible.txt"
@@ -20,21 +20,19 @@ EPOCHS = 1
 K = 5
 NEGATIVE_SAMPLES = 1
 
-words_keep_track = ["holy", "father", "wine", "poison", "love",
-"strong", "day"]
+words_keep_track = ["holy", "father", "wine", "poison", "love", "strong", "day"]
 
 (train_ds, test_ds), tokenizer = get_preprocessed_data(file_path,VOCABULARY,WINDOW,TRAIN_PART,BATCH)
-words_sequence = tokenizer.texts_to_sequences([words_keep_track])[0]
+words_sequence = tf.reshape(tf.cast(tokenizer.texts_to_sequences([words_keep_track]),tf.int64),[-1])
 cosine_similarity = tf.keras.losses.CosineSimilarity(axis=1)
 
 model = SkipGram(VOCABULARY,EMBEDDING,NEGATIVE_SAMPLES)
-model.compile(optimizer='adam',loss = tf.losses.BinaryCrossentropy())
+#model, skipgram = 
+model.compile(optimizer='adam')
 
-# build the model
-for s in train_ds:
-    #model(s,False)
-    print("Embedding: ", tf.nn.embedding_lookup(model.embedding, s[:,0]))
-    break
+# build model
+test_tensor = tf.zeros(shape=(64,2,1))
+model(test_tensor)
 
 #training loop 
 
@@ -50,7 +48,7 @@ test_summary_writer = tf.summary.create_file_writer(test_file_path)
 for e in range(EPOCHS):
 
     for s in tqdm.tqdm(train_ds,position=0,leave=True):
-        metrics = model.train_step(s)
+        metrics = model.train_step(tf.expand_dims(s,axis=-1))
         break # TODO
 
     # log in tensorboard and print
@@ -65,23 +63,23 @@ for e in range(EPOCHS):
     print("Evaluation k-nearest neighbours using cosine similarity")
 
     # calculate whole embedding 
-    whole_embedding = [tf.nn.embedding_lookup(model.embedding, i) for i in range(VOCABULARY)]
+    whole_embedding = [tf.nn.embedding_lookup(model.embedding, tf.expand_dims(i,axis=-1)) for i in tf.range(VOCABULARY,dtype=tf.int64)]
 
     # calculate embedding of words
-    track_words_embedding = [tf.nn.embedding_lookup(model.embedding, w) for w in words_sequence]
+    track_words_embedding = [tf.nn.embedding_lookup(model.embedding, tf.expand_dims(w,axis=-1)) for w in words_sequence]
 
-    for tw,j in enumerate(track_words_embedding):
+    for j,tw in enumerate(track_words_embedding):
         # calculate cosine similarities between whole and words 
-        cosines = [(cosine_similarity(tw,we),i) for we,i in enumerate(whole_embedding)]
+        cosines = [(cosine_similarity(tw,we),i) for i,we in enumerate(whole_embedding)]
 
         # sort by distance and return k-nearest
-        sorted_cosines = sorted(cosines)
+        sorted_cosines = sorted(cosines, reverse=True)
 
         # sequence to text of nearest neighbours
-        words_neighbors = tokenizer.sequences_to_texts([sorted_cosines[:K][1]])[0]
+        words_neighbors = tf.reshape(tokenizer.sequences_to_texts([tf.reshape(sorted_cosines[:K],(K,-1))[:,1].numpy()]),[-1])
 
         # print word with its k-nearest (maybe with cosine similarities)
-        print(words_keep_track[j], ": ", words_neighbors)
+        print(words_keep_track[j], ": ", words_neighbors.numpy())
 
 
 
