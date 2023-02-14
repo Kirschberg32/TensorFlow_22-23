@@ -1,7 +1,7 @@
 import tqdm
 import tensorflow as tf
 
-def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, output_length, top_k, train_summary_writer, val_summary_writer,save_path):
+def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, output_length, top_k, train_summary_writer, save_path):
     for epoch in range(epochs_start,epochs_end):
         print(f"Epoch {epoch}:")
         

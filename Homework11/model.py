@@ -10,12 +10,12 @@ class MyEmbedder(tf.keras.layers.Layer):
         self.add_layer = tf.keras.layers.Add()
 
     def __call__(self, input, training = None):
-        my_indices = tf.range(0,self.sequence_length)
+        my_indices = tf.tile(tf.expand_dims(tf.range(0,self.sequence_length),axis=0),multiples = [64,1])
 
         token_embedding = self.embedding_layer(input)
         indices_embedding = self.second_embedding_layer(my_indices)
 
-        return self.add_layer(token_embedding,indices_embedding)
+        return self.add_layer([token_embedding,indices_embedding])
 
 class TransformerBlock(tf.keras.layers.Layer):
 
@@ -37,17 +37,17 @@ class TransformerBlock(tf.keras.layers.Layer):
 
     def __call__(self, input, training = None):
         
-        x = self.mha_layer(input, use_causal_mask = True)
-        x = self.dropout1(input, training)
-        x = self.add_layer(input, x)
+        x = self.mha_layer(input, input, use_causal_mask = True, training = training)
+        x = self.dropout1(x, training)
+        x = self.add_layer([input, x])
 
-        ln_out = self.normalization1(x,training)
+        ln_out = self.normalization1(x)
         x = self.dense1(ln_out)
         x = self.dense2(x)
         x = self.dropout2(x, training)
-        x = self.add_layer(ln_out, x)
+        x = self.add_layer([ln_out, x])
 
-        x = self.normalization2(x, training)
+        x = self.normalization2(x)
         return x
 
 class MyModel(tf.keras.Model):
@@ -57,7 +57,8 @@ class MyModel(tf.keras.Model):
 
         self.tokenizer = tokenizer
         self.optimizer = optimizer
-        self.loss = loss_function
+        self.loss_function = loss_function
+        self.vocabulary_size = vocabulary_size
         self.metrics_list = [tf.keras.metrics.Mean(name="loss"), tf.keras.metrics.CategoricalAccuracy(name="accuracy")]
 
         self.embedding_layer = MyEmbedder(vocabulary_size,embedding_dim,window_size)
@@ -74,10 +75,10 @@ class MyModel(tf.keras.Model):
         x = self.dense(x)
         return x
 
-    @tf.function
+    # @tf.function
     def train_step(self, data):
         
-        x, targets = data[:-1], data[1:]
+        x, targets = data[:,:-1], tf.one_hot(data[:,1:],self.vocabulary_size,axis=-1)
         
         with tf.GradientTape() as tape:
             predictions = self(x, training=True)
@@ -123,7 +124,3 @@ class MyModel(tf.keras.Model):
         # detokenize the result 
         result = self.tokenizer.detokenize(tokenized_string)
         return result
-
-
-
-

@@ -8,7 +8,7 @@ original_file_path = "data/bible.txt"
 prepared_file_path = "data/prepared_bible.txt"
 model_prefix = 'tokenizer_model'
 VOCABULARY_SIZE = 2000 # 2000 - 7000
-WINDOW_SIZE = 64 # 32 - 256
+WINDOW_SIZE = 32 # 32 - 256
 BATCH_SIZE = 64
 EMBEDDING_DIM = 100 # 64 - 256
 NUM_HEADS = 2 # 2-4
@@ -50,4 +50,4 @@ dataset = dp.create_dataset(prepared_data,tokenizer,WINDOW_SIZE, BATCH_SIZE)
 model = MyModel(tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT)
 # model.load_weights(model_filepath)
 
-# training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,model_filepath)
+training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,model_filepath)
