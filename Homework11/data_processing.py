@@ -1,7 +1,7 @@
 import tensorflow as tf
 import re
 import sentencepiece as sp
-import tf_txt
+import tensorflow_text as tf_txt
 
 def load_data(path):
     with open(path) as f:
@@ -22,15 +22,15 @@ def data_preprocess(data, batch_size :int = 64):
     data = data.prefetch(tf.data.AUTOTUNE)
     return data
 
-def prepared_data(data,file_path = None):
+def prepare_data(data,file_path = None):
     """ prepares the data and saved it at file_path if file_path is not None"""
-    #tokenization
+    #prepare text and save
     prepared_data = re.sub(r'[\n]+','\n',data.lower())
     prepared_data = re.sub(r'[^\sa-zA-Z.!?]+','',prepared_data)
     #prepared_data = " ".join(prepared_data.split())   
 
     if(file_path):
-        text_file = open("data/preprocessed_bible.txt", "w")
+        text_file = open("file_path", "w")
         text_file.write(prepared_data)
         text_file.close()
 
@@ -56,14 +56,14 @@ def prepare_everything(original_file_path,prepared_file_path,model_prefix,vocabu
     but also creates prepared_data and tokenizer newly"""
 
     data = load_data(original_file_path)
-    prepared_data = prepared_data(data,prepared_file_path)
+    prepared_data = prepare_data(data,prepared_file_path)
     train_tokenizer(prepared_file_path,vocabulary_size,model_prefix)
     return data, prepared_data, load_tokenizer(model_prefix)
 
 def load_everything(original_file_path,prepared_file_path,model_prefix):
     return load_data(original_file_path), load_data(prepared_file_path),load_tokenizer(model_prefix)
 
-def created_dataset(prepared_data, tokenizer, window_size,batch_size):
+def create_dataset(prepared_data, tokenizer, window_size,batch_size):
     """ takes a prepared text string as data and tokenizes it, then creates sliding windows, 
     makes a tf Dataset out of it and finally shuffle, batch, prefetch"""
 
