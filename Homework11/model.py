@@ -77,12 +77,12 @@ class MyModel(tf.keras.Model):
     @tf.function
     def train_step(self, data):
         
-        #x, targets = data
+        x, targets = data[:-1], data[1:]
         
         with tf.GradientTape() as tape:
-            predictions = self(data, training=True)
+            predictions = self(x, training=True)
             
-            loss = self.loss_function(data, predictions) + tf.reduce_sum(self.losses)
+            loss = self.loss_function(targets, predictions) + tf.reduce_sum(self.losses)
         
         gradients = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
@@ -92,13 +92,37 @@ class MyModel(tf.keras.Model):
         
         # for all metrics except loss, update states (accuracy etc.)
         for metric in self.metrics[1:]:
-            metric.update_state(data,predictions)
+            metric.update_state(targets,predictions)
 
         # Return a dictionary mapping metric names to current value
         return {m.name: m.result() for m in self.metrics}
 
     def generate_text(self, prompt, output_length, top_k):
-        pass
+        
+        # tokenize the string
+        tokenized_string = self.tokenizer.tokenize(prompt)
+
+        # for each token we want to predict
+        for t in range(output_length):
+
+            # let data run through model
+            logits = self(tf.expand_dims(tokenized_string,axis=0))
+
+            # only sample from the top k 
+            top_k_logits, top_k_indices = tf.math.top_k(input = logits, k = top_k, sorted = True)
+
+            # sample the next token using random categorical
+            sample_index = tf.random._categorical(top_k_logits,1)
+
+            # take token
+            token = tf.squeeze(top_k_indices)[tf.squeeze(sample_index)]
+
+            # concatenate to tokenized_string
+            tokenized_string = tf.concat([tokenized_string, token])
+
+        # detokenize the result 
+        result = self.tokenizer.detokenize(tokenized_string)
+        return result
 
 
 
