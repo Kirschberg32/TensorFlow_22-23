@@ -3,7 +3,7 @@ import tensorflow as tf
 class MyEmbedder(tf.keras.layers.Layer):
 
     def __init__(self,vocabulary_size,embedding_dim,sequence_length):
-        super().init()
+        super().__init__()
         self.sequence_length = sequence_length
         self.embedding_layer = tf.keras.layers.Embedding(input_dim = vocabulary_size, output_dim = embedding_dim)
         self.second_embedding_layer = tf.keras.layers.Embedding(input_dim = sequence_length, output_dim = embedding_dim)
@@ -24,8 +24,8 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         self.mha_layer = tf.keras.layers.MultiHeadAttention(num_heads = num_a_heads, key_dim = embedding_dim)
 
-        self.dense1 = tf.keras.layer.Dense(units = first_units, activation = tf.nn.relu) # between 32 and 256 units
-        self.dense2 = tf.keras.layer.Dense(units = embedding_dim)
+        self.dense1 = tf.keras.layers.Dense(units = first_units, activation = tf.nn.relu) # between 32 and 256 units
+        self.dense2 = tf.keras.layers.Dense(units = embedding_dim)
 
         self.dropout1 = tf.keras.layers.Dropout(rate = 0.1)
         self.dropout2 = tf.keras.layers.Dropout(rate = 0.1)
@@ -52,20 +52,20 @@ class TransformerBlock(tf.keras.layers.Layer):
 
 class MyModel(tf.keras.Model):
 
-    def __init__(self,tokenizer, optimizer, loss_function, vocabulary_size : int, embedding_dim : int, num_heads : int = 2, first_units : int = 32):
+    def __init__(self,tokenizer, optimizer, loss_function, vocabulary_size : int, window_size : int, embedding_dim : int, num_heads : int = 2, first_units : int = 32):
         super().__init__()
 
         self.tokenizer = tokenizer
         self.optimizer = optimizer
         self.loss = loss_function
-        self.metrics = [tf.keras.metrics.Mean(name="loss"), tf.keras.metrics.CategoricalAccuracy(name="accuracy")]
+        self.metrics_list = [tf.keras.metrics.Mean(name="loss"), tf.keras.metrics.CategoricalAccuracy(name="accuracy")]
 
-        self.embedding_layer = MyEmbedder(vocabulary_size,embedding_dim)
+        self.embedding_layer = MyEmbedder(vocabulary_size,embedding_dim,window_size)
         self.transformer_block = TransformerBlock(embedding_dim,num_heads, first_units)
         self.dense = tf.keras.layers.Dense(units = vocabulary_size)
 
     def reset_metrics(self):
-        for metric in self.metrics:
+        for metric in self.metrics_list:
             metric.reset_states()
 
     def __call__(self, input, training = None):
@@ -88,14 +88,14 @@ class MyModel(tf.keras.Model):
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
         
         # update loss metric
-        self.metrics[0].update_state(loss)
+        self.metrics_list[0].update_state(loss)
         
         # for all metrics except loss, update states (accuracy etc.)
-        for metric in self.metrics[1:]:
+        for metric in self.metrics_list[1:]:
             metric.update_state(targets,predictions)
 
         # Return a dictionary mapping metric names to current value
-        return {m.name: m.result() for m in self.metrics}
+        return {m.name: m.result() for m in self.metrics_list}
 
     def generate_text(self, prompt, output_length, top_k):
         

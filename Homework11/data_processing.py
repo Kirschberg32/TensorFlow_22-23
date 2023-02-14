@@ -30,7 +30,7 @@ def prepare_data(data,file_path = None):
     #prepared_data = " ".join(prepared_data.split())   
 
     if(file_path):
-        text_file = open("file_path", "w")
+        text_file = open(file_path, "w")
         text_file.write(prepared_data)
         text_file.close()
 
