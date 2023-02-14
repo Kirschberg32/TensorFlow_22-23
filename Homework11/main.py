@@ -18,13 +18,13 @@ optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001)
 loss_function = tf.keras.losses.CategoricalCrossentropy(from_logits = True)
 
 # prepare if you want to create a new tokenizer and a new prepared data file
-data, prepared_data, tokenizer = dp.prepare_everything(original_file_path,prepared_file_path,model_prefix,VOCABULARY_SIZE)
+#data, prepared_data, tokenizer = dp.prepare_everything(original_file_path,prepared_file_path,model_prefix,VOCABULARY_SIZE)
 
 # if you only want to create a new tokenizer first, use loading afterwards
 # dp.train_tokenizer(prepared_file_path,VOCABULARY_SIZE,model_prefix)
 
 # load everything if already prepared
-# data, prepared_data, tokenizer = dp.prepare_everything(original_file_path,prepared_file_path,model_prefix)
+data, prepared_data, tokenizer = dp.prepare_everything(original_file_path,prepared_file_path,model_prefix,VOCABULARY_SIZE)
 
 dataset = dp.create_dataset(prepared_data,tokenizer,WINDOW_SIZE, BATCH_SIZE)
 
