@@ -1,7 +1,7 @@
 import tqdm
 import tensorflow as tf
 
-def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, output_length, top_k, train_summary_writer, save_path):
+def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, output_length, top_k, train_summary_writer, config_name):
     for epoch in range(epochs_start,epochs_end):
         print(f"Epoch {epoch}:")
         
@@ -24,6 +24,9 @@ def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, ou
         text = model.generate_text(starting_prompt,output_length, top_k)
         print("Generated Text: ", text.numpy())
 
+        with open(f"text/{config_name}.txt", "a") as f:
+            f.write(f"Epoch{epoch}: {text}\n")
+
         with train_summary_writer.as_default():
             tf.summary.text(f"Epoch {epoch}",text.numpy(), step=epoch)
 
@@ -33,4 +36,4 @@ def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, ou
 
         # save model
         if epoch%10 == 0:
-            model.save_weights(save_path + f"/{epoch}")
+            model.save_weights(f"model/{config_name}/{epoch}")

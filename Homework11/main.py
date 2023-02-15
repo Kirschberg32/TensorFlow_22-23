@@ -21,10 +21,8 @@ TEST_OUTPUT_LENGTH = 30
 TOP_K = 20
 
 # Define where to save the log and model
-config_name= "test2_HP_10epochs"
-model_filepath = f'model/{config_name}'
-train_log_path = f"logs/{config_name}/train"
-train_summary_writer = tf.summary.create_file_writer(train_log_path)
+config_name = "test1_HP_10epochs"
+train_summary_writer = tf.summary.create_file_writer(f"logs/{config_name}/train")
 
 # variables for the model
 optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001)
@@ -48,7 +46,7 @@ dataset = dp.create_dataset(prepared_data,tokenizer,WINDOW_SIZE, BATCH_SIZE)
 #*******************
 
 model = MyModel(tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT)
-#model.load_weights(model_filepath)
+#model.load_weights(f'model/{config_name}')
 
-training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,model_filepath)
+training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,config_name)
 
