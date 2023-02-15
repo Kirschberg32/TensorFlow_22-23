@@ -120,7 +120,7 @@ class MyModel(tf.keras.Model):
             sample_index = tf.random.categorical(top_k_logits,1)
 
             # take token
-            token = tf.squeeze(top_k_indices)[tf.squeeze(sample_index)]
+            token = tf.squeeze(top_k_indices,axis=0)[tf.squeeze(sample_index)]
 
             # concatenate to tokenized_string
             tokenized_string = tf.concat([tokenized_string, tf.expand_dims(token,axis=0)],axis=-1)
