@@ -24,7 +24,8 @@ def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, ou
         text = model.generate_text(starting_prompt,output_length, top_k)
         print("Generated Text: ", text.numpy())
 
-        tf.summary.text(f"Epoch {epoch}",text.numpy(), step=epoch)
+        with train_summary_writer.as_default():
+            tf.summary.text(f"Epoch {epoch}",text.numpy(), step=epoch)
 
         # reset all metrics
         model.reset_metrics()
