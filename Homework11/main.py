@@ -4,8 +4,8 @@ from model import MyModel
 from training_loop import training_loop
 
 # variables from prepare, do not change, or otherwise prepare newly
-original_file_path = "data/bible.txt"
-prepared_file_path = "data/prepared_bible.txt"
+original_file_path = "data/HP1.txt"
+prepared_file_path = "data/prepared_HP1.txt"
 model_prefix = 'tokenizer_model'
 VOCABULARY_SIZE = 2000 # 2000 - 7000
 WINDOW_SIZE = 32 # 32 - 256
@@ -14,14 +14,14 @@ EMBEDDING_DIM = 100 # 64 - 256
 NUM_HEADS = 2 # 2-4
 FIRST_UNIT = 32 # 32-256
 
-starting_prompt = "What is "
+starting_prompt = "what is "
 EPOCHS_start = 0 # only needed if you want to continue training
 EPOCHS_end = 1 # 100 - 600
 TEST_OUTPUT_LENGTH = 10
 TOP_K = 5
 
 # Define where to save the log and model
-config_name= "test1"
+config_name= "test1_HP"
 model_filepath = f'model/{config_name}'
 train_log_path = f"logs/{config_name}/train"
 train_summary_writer = tf.summary.create_file_writer(train_log_path)
@@ -48,6 +48,7 @@ dataset = dp.create_dataset(prepared_data,tokenizer,WINDOW_SIZE, BATCH_SIZE)
 #*******************
 
 model = MyModel(tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT)
-# model.load_weights(model_filepath)
+#model.load_weights(model_filepath)
 
 training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,model_filepath)
+

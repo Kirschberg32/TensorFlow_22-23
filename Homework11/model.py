@@ -9,8 +9,9 @@ class MyEmbedder(tf.keras.layers.Layer):
         self.second_embedding_layer = tf.keras.layers.Embedding(input_dim = sequence_length, output_dim = embedding_dim)
         self.add_layer = tf.keras.layers.Add()
 
-    def __call__(self, input, training = None):
-        my_indices = tf.tile(tf.expand_dims(tf.range(0,self.sequence_length),axis=0),multiples = [64,1])
+    def call(self, input, training = None):
+        batch_size = input.shape[0] if input.shape[0] != None else 1
+        my_indices = tf.tile(tf.expand_dims(tf.range(0,input.shape[1]),axis=0),multiples = [batch_size,1])
 
         token_embedding = self.embedding_layer(input)
         indices_embedding = self.second_embedding_layer(my_indices)
@@ -35,7 +36,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         self.add_layer = tf.keras.layers.Add()
 
-    def __call__(self, input, training = None):
+    def call(self, input, training = None):
         
         x = self.mha_layer(input, input, use_causal_mask = True, training = training)
         x = self.dropout1(x, training)
@@ -69,7 +70,7 @@ class MyModel(tf.keras.Model):
         for metric in self.metrics_list:
             metric.reset_states()
 
-    def __call__(self, input, training = None):
+    def call(self, input, training = None):
         x = self.embedding_layer(input, training)
         x = self.transformer_block(x, training)
         x = self.dense(x)
@@ -104,22 +105,25 @@ class MyModel(tf.keras.Model):
         tokenized_string = self.tokenizer.tokenize(prompt)
 
         # for each token we want to predict
-        for t in range(output_length):
+        for _ in range(output_length):
 
             # let data run through model
             logits = self(tf.expand_dims(tokenized_string,axis=0))
+
+            # take average over input logits results
+            logits = tf.reduce_mean(logits,axis=1)
 
             # only sample from the top k 
             top_k_logits, top_k_indices = tf.math.top_k(input = logits, k = top_k, sorted = True)
 
             # sample the next token using random categorical
-            sample_index = tf.random._categorical(top_k_logits,1)
+            sample_index = tf.random.categorical(top_k_logits,1)
 
             # take token
             token = tf.squeeze(top_k_indices)[tf.squeeze(sample_index)]
 
             # concatenate to tokenized_string
-            tokenized_string = tf.concat([tokenized_string, token])
+            tokenized_string = tf.concat([tokenized_string, tf.expand_dims(token,axis=0)],axis=-1)
 
         # detokenize the result 
         result = self.tokenizer.detokenize(tokenized_string)
