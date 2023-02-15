@@ -15,7 +15,7 @@ def training_loop(model, train_ds, epochs_start, epochs_end, starting_prompt, ou
                 tf.summary.scalar(f"{metric.name}", metric.result(), step=epoch)
 
         # print the metrics
-        print([f"{key}: {value.numpy()}" for (key, value) in metrics.items()])
+        [print(f"{key}: {value.numpy()}") for (key, value) in metrics.items()]
 
         # reset all metrics (requires a reset_metrics method in the model)
         model.reset_metrics()    

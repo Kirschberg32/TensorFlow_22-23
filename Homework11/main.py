@@ -12,16 +12,16 @@ WINDOW_SIZE = 32 # 32 - 256
 BATCH_SIZE = 64
 EMBEDDING_DIM = 100 # 64 - 256
 NUM_HEADS = 2 # 2-4
-FIRST_UNIT = 32 # 32-256
+FIRST_UNIT = 64 # 32-256
 
-starting_prompt = "what is "
+starting_prompt = "harry and "
 EPOCHS_start = 0 # only needed if you want to continue training
 EPOCHS_end = 1 # 100 - 600
-TEST_OUTPUT_LENGTH = 10
-TOP_K = 5
+TEST_OUTPUT_LENGTH = 30
+TOP_K = 20
 
 # Define where to save the log and model
-config_name= "test1_HP"
+config_name= "test2_HP_10epochs"
 model_filepath = f'model/{config_name}'
 train_log_path = f"logs/{config_name}/train"
 train_summary_writer = tf.summary.create_file_writer(train_log_path)
