@@ -26,7 +26,7 @@ TOP_K = 20
 # important: tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT
 # create file of model, add all the important data to it
 with open(f"text/{config_name}.txt", "a") as f:
-    f.write(f"CONFIG: {config_name}\nEPOCHS: {EPOCHS_start} - {EPOCHS_end}\ndata: {prepared_file_path}\n\nvocabulary size: {VOCABULARY_SIZE}\nwindow size: {WINDOW_SIZE}\nembedding dim: {EMBEDDING_DIM}\n num heads: {NUM_HEADS}\nfirst unit: {FIRST_UNIT}\n\n")
+    f.write(f"CONFIG: {config_name}\nEPOCHS: {EPOCHS_start} - {EPOCHS_end}\ndata: {prepared_file_path}\n\nvocabulary size: {VOCABULARY_SIZE}\nwindow size: {WINDOW_SIZE}\nembedding dim: {EMBEDDING_DIM}\nnum heads: {NUM_HEADS}\nfirst unit: {FIRST_UNIT}\n\n")
 
 # variables for the model
 optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001)
