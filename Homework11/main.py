@@ -46,6 +46,7 @@ dataset = dp.create_dataset(prepared_data,tokenizer,WINDOW_SIZE, BATCH_SIZE)
 #*******************
 
 model = MyModel(tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT)
+#model.generate_text("hello dear,", 1, 2)
 #model.load_weights(f'model/{config_name}')
 
 training_loop(model,dataset,EPOCHS_start, EPOCHS_end,starting_prompt, TEST_OUTPUT_LENGTH, TOP_K, train_summary_writer,config_name)
