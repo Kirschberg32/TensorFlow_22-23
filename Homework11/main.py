@@ -7,6 +7,9 @@ from training_loop import training_loop
 original_file_path = "data/HP1.txt"
 prepared_file_path = "data/prepared_HP1.txt"
 model_prefix = 'tokenizer_model'
+# Define where to save the log and model
+config_name = "test1_HP_10epochs"
+train_summary_writer = tf.summary.create_file_writer(f"logs/{config_name}/train")
 VOCABULARY_SIZE = 2000 # 2000 - 7000
 WINDOW_SIZE = 32 # 32 - 256
 BATCH_SIZE = 64
@@ -20,9 +23,10 @@ EPOCHS_end = 1 # 100 - 600
 TEST_OUTPUT_LENGTH = 30
 TOP_K = 20
 
-# Define where to save the log and model
-config_name = "test1_HP_10epochs"
-train_summary_writer = tf.summary.create_file_writer(f"logs/{config_name}/train")
+# important: tokenizer, optimizer, loss_function, VOCABULARY_SIZE, WINDOW_SIZE, EMBEDDING_DIM, NUM_HEADS, FIRST_UNIT
+# create file of model, add all the important data to it
+with open(f"text/{config_name}.txt", "a") as f:
+    f.write(f"CONFIG: {config_name}\nEPOCHS: {EPOCHS_start} - {EPOCHS_end}\ndata: {prepared_file_path}\n\nvocabulary size: {VOCABULARY_SIZE}\nwindow size: {WINDOW_SIZE}\nembedding dim: {EMBEDDING_DIM}\n num heads: {NUM_HEADS}\nfirst unit: {FIRST_UNIT}\n\n")
 
 # variables for the model
 optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001)
