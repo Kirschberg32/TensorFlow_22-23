@@ -1,0 +1,12 @@
+CONFIG: test1_HP_1epochs
+EPOCHS: 0 - 2
+data: data/prepared_HP1.txt
+
+vocabulary size: 2000
+window size: 32
+embedding dim: 100
+ num heads: 2
+first unit: 64
+
+Epoch0: b'harry and felt there were there to that his was all in there a thes a a great a a all in a goods to a.. a a'
+Epoch1: b'harry and ron hermione.s were the. said to a and you hurry a see hermione hermione you you the the hermione next in harry he. a said.'
